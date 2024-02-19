@@ -17,26 +17,7 @@ class BinarySearchTree {
 
   // find new node parent
   findNewNodeParent(currentNode, key) {
-    if (currentNode.key === key) return false;
     let parent = currentNode.parent;
-    while (currentNode.leftChild != null || currentNode.rightChild !== null) {
-      currentNode =
-        currentNode.key < key ? currentNode.rightChild : currentNode.leftChild;
-      parent = currentNode;
-    }
-    return [parent, currentNode];
-  }
-
-  insert(key) {
-    // if length is 0 create new node and assign root to it
-    if (this.length === 0) {
-      this.length++;
-      this.root = new TreeNode(key);
-      return true;
-    }
-    let currentNode = this.root;
-    let parent = null;
-    // loop through tree and find node parent of new node;
     while (true) {
       if (key === currentNode.key) return false; // does'nt allow double entry
       // if key < node.key move left else move right
@@ -51,7 +32,22 @@ class BinarySearchTree {
       }
       parent = currentNode;
     }
+    return [parent, currentNode];
+  }
 
+  insert(key) {
+    // error handling not adding
+    if (!parseInt(key)) return false;
+    // if length is 0 create new node and assign root to it
+    if (this.length === 0) {
+      this.length++;
+      this.root = new TreeNode(key);
+      return true;
+    }
+
+    // loop through tree and find node parent of new node;
+
+    const [parent, currentNode] = this.findNewNodeParent(this.root, key);
     this.length++;
     const node = new TreeNode(key, parent);
     // check if root
@@ -71,6 +67,21 @@ class BinarySearchTree {
       }
     }
     return true;
+  }
+
+  findNode(key) {
+    // handle wrong input and empty tree
+    if (typeof key !== "number" || this.length === 0) return false;
+    // check if key == root
+    if (key === this.root.key) return true;
+    // loop through tree
+    let currentNode = this.root;
+    while (currentNode) {
+      if (currentNode.key === key) return true;
+      currentNode =
+        currentNode.key < key ? currentNode.rightChild : currentNode.leftChild;
+    }
+    return false;
   }
 
   // min and max return false when tree is empty;
@@ -96,6 +107,7 @@ class BinarySearchTree {
 }
 
 const bst = new BinarySearchTree();
+bst.insert("hello my name is");
 bst.insert(20);
 bst.insert(25);
 bst.insert(10);
@@ -109,11 +121,15 @@ console.log(
   "min value ",
   bst.getMinValue().key,
   " the parent value is ",
-  bst.getMinValue().parent.key
+  bst.getMinValue().parent?.key
 );
 console.log(
   "max value ",
   bst.getMaxValue().key,
   "the parent is ",
-  bst.getMaxValue().parent.key
+  bst.getMaxValue().parent?.key
 );
+console.log(bst);
+console.log("########## find ###########");
+console.log(bst.findNode(30));
+console.log(bst.findNode(1000));
