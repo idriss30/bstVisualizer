@@ -84,6 +84,35 @@ class BinarySearchTree {
     return false;
   }
 
+  //traversal
+  inOrderTraversal(node) {
+    // using recursion
+    // return false if length is 0;
+    if (this.length === 0 || !node) return false;
+    // if node.leftChild call inOrderTraversal(node.leftChild)  until null;
+    if (node.leftChild) this.inOrderTraversal(node.leftChild);
+    // do something with node
+    console.log(node.key);
+    // move to the rightChild if any and call inOrderTraversal(node.rightChild)
+    if (node.rightChild) this.inOrderTraversal(node.rightChild);
+  }
+
+  inOrder(root) {
+    // using stack;
+    const stack = [];
+    let currentNode = root;
+    while (currentNode !== null || stack.length > 0) {
+      while (currentNode !== null) {
+        stack.push(currentNode);
+        currentNode = currentNode.leftChild;
+      }
+
+      currentNode = stack.pop();
+      console.log(currentNode.key);
+      currentNode = currentNode.rightChild;
+    }
+  }
+
   // min and max return false when tree is empty;
   // move in linear chain until value of left/right child is null;
   getMinValue() {
@@ -114,7 +143,8 @@ bst.insert(10);
 bst.insert(9);
 bst.insert(11);
 bst.insert(30);
-
+bst.insert(22);
+/* 
 console.log("*************");
 console.log("**********");
 console.log(
@@ -129,7 +159,11 @@ console.log(
   "the parent is ",
   bst.getMaxValue().parent?.key
 );
-console.log(bst);
+
 console.log("########## find ###########");
 console.log(bst.findNode(30));
 console.log(bst.findNode(1000));
+ */
+
+//bst.inOrderTraversal(bst.root);
+bst.inOrder(bst.root);
