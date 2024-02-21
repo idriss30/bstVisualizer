@@ -97,19 +97,62 @@ class BinarySearchTree {
     if (node.rightChild) this.inOrderTraversal(node.rightChild);
   }
 
-  inOrder(root) {
-    // using stack;
-    const stack = [];
+  iterativeInOrderTraversal(root) {
+    // using array;
+    const nodesArray = [];
     let currentNode = root;
-    while (currentNode !== null || stack.length > 0) {
+    while (currentNode !== null || nodesArray.length > 0) {
       while (currentNode !== null) {
-        stack.push(currentNode);
+        nodesArray.push(currentNode);
         currentNode = currentNode.leftChild;
       }
 
-      currentNode = stack.pop();
+      currentNode = nodesArray.pop();
       console.log(currentNode.key);
       currentNode = currentNode.rightChild;
+    }
+  }
+
+  //preOrder nodes are visited in the order they appear. usefulf to create a copy of the tree;
+  preOrderTraversal(node) {
+    if (this.length === 0) return false;
+    if (this.length === 1) {
+      console.log(this.root.key);
+      return;
+    }
+    let currentNode = node;
+    // do something with key;
+    console.log(node.key);
+    // move left and call function with left child
+    if (currentNode.leftChild) {
+      this.preOrderTraversal(currentNode.leftChild);
+    }
+    // move right there is a rightChild
+    if (currentNode.rightChild) {
+      this.preOrderTraversal(currentNode.rightChild);
+    }
+  }
+
+  //preOrder iterative approach
+  iterativePreOrderTraversal(root) {
+    if (this.length === 0) return false;
+    if (this.length === 1) {
+      console.log(this.root.key);
+      return;
+    }
+    // create stack and add root;
+    const stack = [];
+    stack.push(root);
+
+    while (stack.length > 0) {
+      let node = stack.pop();
+      console.log(node.key);
+      if (node.rightChild) {
+        stack.push(node.rightChild);
+      }
+      if (node.leftChild) {
+        stack.push(node.leftChild);
+      }
     }
   }
 
@@ -165,5 +208,8 @@ console.log(bst.findNode(30));
 console.log(bst.findNode(1000));
  */
 
-//bst.inOrderTraversal(bst.root);
-bst.inOrder(bst.root);
+//bst.iterativeInOrderTraversalTraversal(bst.root);
+//bst.iterativeInOrderTraversal(bst.root)
+bst.preOrderTraversal(bst.root);
+console.log("********* iterative pre order ******************");
+bst.iterativePreOrderTraversal(bst.root);
