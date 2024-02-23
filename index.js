@@ -140,7 +140,7 @@ class BinarySearchTree {
       console.log(this.root.key);
       return;
     }
-    // create stack and add root;
+    // create stack and add root
     const stack = [];
     stack.push(root);
 
@@ -154,6 +154,21 @@ class BinarySearchTree {
         stack.push(node.leftChild);
       }
     }
+  }
+
+  // postOrder nodes are useful for deleting or
+  //freeing nodes in a tree structure, as it ensures that child nodes are processed before their parent nodes
+  // left node is visited then right node, then currentNode
+
+  postOrderTraversal(node) {
+    if (node == null) return false;
+    if (node.leftChild) {
+      this.postOrderTraversal(node.leftChild);
+    }
+    if (node.rightChild) {
+      this.postOrderTraversal(node.rightChild);
+    }
+    console.log(node.key);
   }
 
   // min and max return false when tree is empty;
@@ -210,6 +225,7 @@ console.log(bst.findNode(1000));
 
 //bst.iterativeInOrderTraversalTraversal(bst.root);
 //bst.iterativeInOrderTraversal(bst.root)
-bst.preOrderTraversal(bst.root);
-console.log("********* iterative pre order ******************");
-bst.iterativePreOrderTraversal(bst.root);
+//bst.preOrderTraversal(bst.root);
+//console.log("********* iterative pre order ******************");
+//bst.iterativePreOrderTraversal(bst.root);
+bst.postOrderTraversal(bst.root);
