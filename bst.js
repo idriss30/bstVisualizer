@@ -156,45 +156,126 @@ class BinarySearchTree {
 
   // delete
 
+  // remove leaf node
+  removeLeaf(parent) {
+    // check if root;
+    if (parent === null) {
+      this.root = null;
+    } else {
+      if (parent.leftNode.key === key) {
+        parent.leftNode = null;
+      } else {
+        parent.rightNode = null;
+      }
+    }
+  }
+
+  removeNodeWithSingleChild(parent, node, key) {
+    if (parent.leftNode.key === key) {
+      parent.leftNode = node.leftNode || node.rightNode;
+    } else if (parent.rightNode.key === key) {
+      parent.rightNode = node.rightNode || node.leftNode;
+    }
+
+    // element to remove is the root
+    if (parent === null) {
+      this.root = node.leftNode || node.rightNode;
+    }
+  }
+  getSubsetMin(node) {
+    while (node.leftNode) {
+      node = node.leftNode;
+    }
+    return node;
+  }
+
+  getSubsetMinParent(node) {
+    let { key } = this.getSubsetMin(node);
+    while (node.leftNode) {
+      if (node.leftNode.key === key) {
+        return node;
+      }
+      node = node.leftNode;
+    }
+    return -1;
+  }
+
+  removeNodeWithTwoChildren(parent, node, key) {
+    /*
+    find currentMin
+    find currentMin parent 
+    assign left side of parent min to null
+    if node is root 
+      assign current  root.right to minNode.right
+      assign current root.left to minNode.left
+      assign minNode to root
+    else
+      if node.key equal to parent.leftNode.key
+        parent.leftNode equal to currentMin
+      else 
+        parent.rightNode equal to currentMin
+
+      currentMin.leftNode equal to node.leftNode or null
+      currentMin.rightNode equal to node.rightNode or null
+      node = currentMin
+    */
+    const currentMin = this.getSubsetMin(node);
+    const currentMinParent = this.getSubsetMinParent(node);
+    currentMinParent.leftNode = null;
+    if (parent === null) {
+      // node is root
+      this.root.rightNode = currentMin.rightNode;
+      this.root.leftNode = currentMin.leftNode;
+      this.root = currentMin;
+    } else {
+      if (node.key === parent.leftNode.key) {
+        parent.leftNode = currentMin;
+      } else {
+        parent.rightNode = currentMin;
+      }
+      currentMin.leftNode = node.leftNode || null;
+      currentMin.rightNode = node.rightNode || null;
+      node = currentMin;
+    }
+  }
+
   delete(key) {
     // return false if root is empty
     if (this.length === 0) return false;
 
     let currentNode = this.root;
     let parent = null;
+
     while (currentNode) {
+      parent = currentNode;
+
       if (currentNode.key > key) {
-        parent = currentNode;
         currentNode = currentNode.leftNode;
         continue;
       } else if (currentNode.key < key) {
-        parent = currentNode;
         currentNode = currentNode.rightNode;
         continue;
       }
-      break; // Will break if key is found;
-    }
 
-    if (!currentNode) return false; // return false is key is not found;
-
-    // remove leaf node;
-    if (currentNode.rightNode === null && currentNode.leftNode === null) {
-      // check if root;
-      if (parent === null) {
-        this.root == null;
-      } else {
-        if (parent.leftNode.key === key) {
-          parent.leftNode = null;
+      if (key === currentNode.key) {
+        // remove the leaf node
+        if (currentNode.leftNode === null && currentNode.rightNode === null) {
+          this.removeLeaf(parent);
+        } else if (
+          currentNode.leftNode !== null ||
+          currentNode.rightNode !== null
+        ) {
+          this.removeSingleChild(parent, currentNode, key);
+          currentNode = null;
         } else {
-          parent.rightNode = null;
+          // remove node with two children;
         }
+
+        this.length--;
+        return true;
       }
     }
-
-    // remove node with one child;
-
-    this.length--;
-    return true;
+    return false;
   }
 }
 
