@@ -17,10 +17,11 @@ class BinarySearchTree {
 
   findNewNodeParent(currentNode, key) {
     if (key === currentNode.key) return false;
-    if (key > currentNode.key && currentNode.rightNode)
+    if (key > currentNode.key && currentNode.rightNode) {
       return this.findNewNodeParent(currentNode.rightNode, key);
-    else if (key < currentNode.key && currentNode.leftNode)
+    } else if (key < currentNode.key && currentNode.leftNode) {
       return this.findNewNodeParent(currentNode.leftNode, key);
+    }
 
     return currentNode;
   }
@@ -36,12 +37,12 @@ class BinarySearchTree {
       // find where to place node;
       const nodeParent = this.findNewNodeParent(this.root, key);
       // return false when duplicate value
-      if (!nodeParent) return false;
+      if (nodeParent == null) return false;
       // place node based on key value
       const newNode = new TreeNode(key);
       if (key > nodeParent.key) {
         nodeParent.rightNode = newNode;
-      } else if (key < nodeParent.key) {
+      } else {
         nodeParent.leftNode = newNode;
       }
     }
@@ -52,18 +53,30 @@ class BinarySearchTree {
 
   findNode(key, startingNode) {
     // return false when tree is empty || starting node is null;
-    if (this.length === 0 || !startingNode) return false;
+    if (this.length === 0 || !startingNode || !key) return false;
     // move left or right in Tree
-    if (key > startingNode.key && startingNode.rightNode) {
+    while (startingNode) {
+      if (key === startingNode.key) {
+        return true;
+      } else if (key > startingNode.key) {
+        startingNode = startingNode.rightNode;
+      } else {
+        startingNode = startingNode.leftNode;
+      }
+      return false;
+    }
+
+    /* if (key > startingNode.key && startingNode.rightNode) {
       return this.findNode(key, startingNode.rightNode);
     } else if (key < startingNode.key && startingNode.leftNode) {
       return this.findNode(key, startingNode.leftNode);
     }
     // return true if found else false
-    return key === startingNode.key;
+    return key === startingNode.key; */
   }
 
   getMin() {
+    if (this.length === 0) return false;
     let currentNode = this.root;
     while (currentNode.leftNode) {
       currentNode = currentNode.leftNode;
@@ -72,6 +85,7 @@ class BinarySearchTree {
   }
 
   getMax() {
+    if (this.length === 0) return false;
     let currentNode = this.root;
     while (currentNode.rightNode) {
       currentNode = currentNode.rightNode;
@@ -115,6 +129,7 @@ class BinarySearchTree {
   // node that comes right after key in an in order traversal
   // small key value that's greater than current key
   findSuccessor(key) {
+    if (this.length === 0) return -1;
     const stack = [];
     let currentNode = bst.root;
     while (currentNode !== null || stack.length > 0) {
@@ -134,6 +149,7 @@ class BinarySearchTree {
   // predecessor
   // items who come before key in an inOrder traversal
   findPredecessor(key) {
+    if (this.length === 0) return -1;
     const stack = [];
     let currentNode = bst.root;
     let previous = null;
@@ -170,7 +186,7 @@ class BinarySearchTree {
     }
   }
 
-  removeNodeWithSingleChild(parent, node, key) {
+  removeNodeWithOneChild(parent, node, key) {
     if (parent.leftNode.key === key) {
       parent.leftNode = node.leftNode || node.rightNode;
     } else if (parent.rightNode.key === key) {
@@ -189,8 +205,7 @@ class BinarySearchTree {
     return node;
   }
 
-  getSubsetMinParent(node) {
-    let { key } = this.getSubsetMin(node);
+  getSubsetMinParent(node, key) {
     while (node.leftNode) {
       if (node.leftNode.key === key) {
         return node;
@@ -201,26 +216,8 @@ class BinarySearchTree {
   }
 
   removeNodeWithTwoChildren(parent, node, key) {
-    /*
-    find currentMin
-    find currentMin parent 
-    assign left side of parent min to null
-    if node is root 
-      assign current  root.right to minNode.right
-      assign current root.left to minNode.left
-      assign minNode to root
-    else
-      if node.key equal to parent.leftNode.key
-        parent.leftNode equal to currentMin
-      else 
-        parent.rightNode equal to currentMin
-
-      currentMin.leftNode equal to node.leftNode or null
-      currentMin.rightNode equal to node.rightNode or null
-      node = currentMin
-    */
     const currentMin = this.getSubsetMin(node);
-    const currentMinParent = this.getSubsetMinParent(node);
+    const currentMinParent = this.getSubsetMinParent(node, key);
     currentMinParent.leftNode = null;
     if (parent === null) {
       // node is root
@@ -228,7 +225,7 @@ class BinarySearchTree {
       this.root.leftNode = currentMin.leftNode;
       this.root = currentMin;
     } else {
-      if (node.key === parent.leftNode.key) {
+      if (key === parent.leftNode.key) {
         parent.leftNode = currentMin;
       } else {
         parent.rightNode = currentMin;
@@ -265,10 +262,11 @@ class BinarySearchTree {
           currentNode.leftNode !== null ||
           currentNode.rightNode !== null
         ) {
-          this.removeSingleChild(parent, currentNode, key);
+          this.removeNodeWithOneChild(parent, currentNode, key);
           currentNode = null;
         } else {
           // remove node with two children;
+          this.removeNodeWithTwoChildren(parent, currentNode, key);
         }
 
         this.length--;
@@ -280,21 +278,24 @@ class BinarySearchTree {
 }
 
 const bst = new BinarySearchTree();
-bst.insert(10);
-bst.insert(5);
+
+bst.insert(30);
+bst.insert(20);
+bst.insert(35);
 bst.insert(15);
-bst.insert(12);
-//console.log(bst.findNode(10, bst.root));
-//console.log(bst.findNode(30, bst.root));
-/* console.log("............In Order ..................");
+bst.insert(25);
+bst.insert(33);
+bst.insert(40);
+bst.insert(34);
+bst.insert(31);
+bst.insert(36);
+bst.insert(45);
+
+console.log("the min is ", bst.getMin());
+console.log("the max is ", bst.getMax());
+console.log("***************In Order-Traversal ************");
 bst.inOrderTraversal(bst.root);
-console.log("...........Pre order..........");
-bst.preOrderTraversal(bst.root);
-console.log("............ Post Order........");
+console.log("************Post order Traversal**********");
 bst.postOrderTraversal(bst.root);
-console.log("//////////// predecessor - successor /////////////");
-console.log(bst.findSuccessor(5).key);
-console.log(bst.findPredecessor(15).key);
- */
-console.log(bst.delete(12));
-console.log(bst.delete(100));
+console.log("************** Pre order Traversal**********");
+bst.preOrderTraversal(bst.root);
