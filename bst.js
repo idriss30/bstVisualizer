@@ -30,7 +30,7 @@ class BinarySearchTree {
   insert(key) {
     if (!key || typeof key !== "number") return false;
     // add root
-    if (this.length === 0) {
+    if (!this.length) {
       let node = new TreeNode(key);
       this.root = node;
     } else {
@@ -53,7 +53,7 @@ class BinarySearchTree {
 
   findNode(key, startingNode) {
     // return false when tree is empty || starting node is null;
-    if (this.length === 0 || !startingNode || !key) return false;
+    if (!this.length || !startingNode || !key) return false;
     // move left or right in Tree
     while (startingNode) {
       if (key === startingNode.key) {
@@ -63,20 +63,12 @@ class BinarySearchTree {
       } else {
         startingNode = startingNode.leftNode;
       }
-      return false;
     }
-
-    /* if (key > startingNode.key && startingNode.rightNode) {
-      return this.findNode(key, startingNode.rightNode);
-    } else if (key < startingNode.key && startingNode.leftNode) {
-      return this.findNode(key, startingNode.leftNode);
-    }
-    // return true if found else false
-    return key === startingNode.key; */
+    return false;
   }
 
   getMin() {
-    if (this.length === 0) return false;
+    if (!this.length) return false;
     let currentNode = this.root;
     while (currentNode.leftNode) {
       currentNode = currentNode.leftNode;
@@ -85,7 +77,7 @@ class BinarySearchTree {
   }
 
   getMax() {
-    if (this.length === 0) return false;
+    if (!this.length) return false;
     let currentNode = this.root;
     while (currentNode.rightNode) {
       currentNode = currentNode.rightNode;
@@ -97,7 +89,7 @@ class BinarySearchTree {
   // ideal for printing node in ascending order
 
   inOrderTraversal(node) {
-    if (!node || this.length === 0) return false;
+    if (!node || !this.length) return false;
     this.inOrderTraversal(node.leftNode);
     // do something with the currentNode;
     console.log(node.key);
@@ -109,7 +101,7 @@ class BinarySearchTree {
   // node are visited from currentNode to left to right
 
   preOrderTraversal(node) {
-    if (!node || this.length === 0) return false;
+    if (!node || !this.length) return false;
     console.log(node.key);
     this.preOrderTraversal(node.leftNode);
     this.preOrderTraversal(node.rightNode);
@@ -119,7 +111,7 @@ class BinarySearchTree {
   // when you want to delete or when you need to process children before parents
   // left then right then current
   postOrderTraversal(node) {
-    if (!node || this.length === 0) return false;
+    if (!node || !this.length) return false;
     this.postOrderTraversal(node.leftNode);
     this.postOrderTraversal(node.rightNode);
     console.log(node.key);
@@ -129,7 +121,7 @@ class BinarySearchTree {
   // node that comes right after key in an in order traversal
   // small key value that's greater than current key
   findSuccessor(key) {
-    if (this.length === 0) return -1;
+    if (!this.length) return -1;
     const stack = [];
     let currentNode = bst.root;
     while (currentNode !== null || stack.length > 0) {
@@ -149,7 +141,7 @@ class BinarySearchTree {
   // predecessor
   // items who come before key in an inOrder traversal
   findPredecessor(key) {
-    if (this.length === 0) return -1;
+    if (!this.length) return -1;
     const stack = [];
     let currentNode = bst.root;
     let previous = null;
@@ -199,74 +191,84 @@ class BinarySearchTree {
     }
   }
   getSubsetMin(node) {
+    // mode right first
+    node = node.rightNode || null;
     while (node.leftNode) {
       node = node.leftNode;
     }
     return node;
   }
 
-  getSubsetMinParent(node, key) {
+  getSubsetMinParent(node) {
+    let parent = node;
+    node = node.rightNode;
     while (node.leftNode) {
-      if (node.leftNode.key === key) {
-        return node;
-      }
+      parent = node;
       node = node.leftNode;
     }
-    return -1;
+    return parent;
   }
 
-  removeNodeWithTwoChildren(parent, node, key) {
-    const currentMin = this.getSubsetMin(node);
-    const currentMinParent = this.getSubsetMinParent(node, key);
-    currentMinParent.leftNode = null;
-    if (parent === null) {
-      // node is root
-      this.root.rightNode = currentMin.rightNode;
-      this.root.leftNode = currentMin.leftNode;
-      this.root = currentMin;
-    } else {
-      if (key === parent.leftNode.key) {
-        parent.leftNode = currentMin;
-      } else {
-        parent.rightNode = currentMin;
+  removeNodeWithTwoChildren(subTree, key) {
+    const subMin = this.getSubsetMin(subTree.node);
+    const subMinParent = this.getSubsetMinParent(subTree.node);
+
+    if (subMinParent.leftNode.key === subMin.key) {
+      subMinParent.leftNode = null;
+    }
+
+    // case node is root
+    if (key === this.root.key) {
+      subMin.leftNode = this.root.leftNode;
+      if (subMin.rightNode === null) {
+        subMin.rightNode = this.root.rightNode;
       }
-      currentMin.leftNode = node.leftNode || null;
-      currentMin.rightNode = node.rightNode || null;
-      node = currentMin;
+      this.root = subMin;
+    } else {
+      // node is not root
+      if (subTree.parent.leftNode.key === key) {
+        subTree.parent.leftNode = subMin;
+      } else {
+        subTree.parent.rightNode = subMin;
+      }
+      subMin.leftNode = subTree.node.leftNode;
+      subMin.rightNode = subTree.node.rightNode || null;
+      subTree.node = subMin;
     }
   }
 
   delete(key) {
     // return false if root is empty
-    if (this.length === 0) return false;
+    if (!this.length) return false;
 
-    let currentNode = this.root;
-    let parent = null;
+    const subTree = {
+      node: this.root,
+      parent: null,
+    };
 
-    while (currentNode) {
-      parent = currentNode;
+    while (subTree.node) {
+      subTree.parent = subTree.node;
 
-      if (currentNode.key > key) {
-        currentNode = currentNode.leftNode;
+      if (subTree.node.key > key) {
+        subTree.node = subTree.node.leftNode;
         continue;
-      } else if (currentNode.key < key) {
-        currentNode = currentNode.rightNode;
+      } else if (subTree.node.key < key) {
+        subTree.node = subTree.node.rightNode;
         continue;
       }
 
-      if (key === currentNode.key) {
+      if (key === subTree.node.key) {
         // remove the leaf node
-        if (currentNode.leftNode === null && currentNode.rightNode === null) {
-          this.removeLeaf(parent);
+        if (subTree.node.leftNode === null && subTree.node.rightNode === null) {
+          this.removeLeaf(subTree.parent);
         } else if (
-          currentNode.leftNode !== null ||
-          currentNode.rightNode !== null
+          (subTree.node.leftNode !== null && subTree.node.rightNode === null) ||
+          (subTree.node.rightNode !== null && subTree.node.leftNode == null)
         ) {
-          this.removeNodeWithOneChild(parent, currentNode, key);
-          currentNode = null;
+          this.removeNodeWithOneChild(subTree.parent, subTree.node, key);
+          subTree.node = null;
         } else {
-          // remove node with two children;
-          this.removeNodeWithTwoChildren(parent, currentNode, key);
+          this.removeNodeWithTwoChildren(subTree, key);
         }
 
         this.length--;
@@ -299,3 +301,9 @@ console.log("************Post order Traversal**********");
 bst.postOrderTraversal(bst.root);
 console.log("************** Pre order Traversal**********");
 bst.preOrderTraversal(bst.root);
+console.log("***********************");
+bst.delete(20);
+console.log("the new root is ", bst.root);
+console.log("******** Tree **********");
+console.log(bst);
+console.log(bst.findNode(20, bst.root));
