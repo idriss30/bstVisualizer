@@ -119,7 +119,7 @@ class BinarySearchTree {
 
   //findSuccessor
   // node that comes right after key in an in order traversal
-  // small key value that's greater than current key
+  // smaller key value that's greater than current key
   findSuccessor(key) {
     if (!this.length) return -1;
     const stack = [];
@@ -191,7 +191,7 @@ class BinarySearchTree {
     }
   }
   getSubsetMin(node) {
-    // mode right first
+    // move right first
     node = node.rightNode || null;
     while (node.leftNode) {
       node = node.leftNode;
@@ -251,10 +251,8 @@ class BinarySearchTree {
 
       if (subTree.node.key > key) {
         subTree.node = subTree.node.leftNode;
-        continue;
       } else if (subTree.node.key < key) {
         subTree.node = subTree.node.rightNode;
-        continue;
       }
 
       if (key === subTree.node.key) {
