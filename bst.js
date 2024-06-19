@@ -51,6 +51,19 @@ class BinarySearchTree {
     return true;
   }
 
+  findNode2(key, startingNode) {
+    // return false when tree is empty or startingNode is empty
+    if (!key || !startingNode || !this.length) return false;
+    // move left if key is less
+    if (key < startingNode.key)
+      return this.findNode2(key, startingNode.leftNode);
+    // move right if key is greater
+    if (key > startingNode.key)
+      return this.findNode2(key, startingNode.rightNode);
+
+    return true;
+  }
+
   findNode(key, startingNode) {
     // return false when tree is empty || starting node is null;
     if (!this.length || !startingNode || !key) return false;
@@ -65,6 +78,12 @@ class BinarySearchTree {
       }
     }
     return false;
+  }
+
+  getMinRecursive(node) {
+    if (!node || !this.root) return false;
+    if (node.leftNode) return this.getMinRecursive(node.leftNode);
+    return node;
   }
 
   getMin() {
@@ -83,6 +102,12 @@ class BinarySearchTree {
       currentNode = currentNode.rightNode;
     }
     return currentNode;
+  }
+
+  getMaxRecursive(node) {
+    if (!node || !this.root) return false;
+    if (node.rightNode) return this.getMaxRecursive(node.rightNode);
+    return node;
   }
   // in order traversal
   // visit left Child and it s subtree, then currentNode, then RightChild;
@@ -135,6 +160,19 @@ class BinarySearchTree {
         return currentNode;
       }
       currentNode = currentNode.rightNode;
+    }
+  }
+
+  findSuccessorRecursive(key, node) {
+    let previous = null;
+    if (node.key == node) {
+      previous = node;
+    }
+    if (node.leftNode) {
+      this.findSuccessorRecursive(key, node.leftNode);
+    }
+    if (node.rightNode) {
+      this.findSuccessorRecursive(key, node.rightNode);
     }
   }
 
@@ -278,30 +316,15 @@ class BinarySearchTree {
 }
 
 const bst = new BinarySearchTree();
-
-bst.insert(30);
 bst.insert(20);
-bst.insert(35);
-bst.insert(15);
+bst.insert(10);
+bst.insert(30);
+bst.insert(9);
 bst.insert(25);
-bst.insert(33);
 bst.insert(40);
-bst.insert(34);
-bst.insert(31);
-bst.insert(36);
 bst.insert(45);
+bst.insert(32);
+bst.insert(7);
+bst.insert(14);
 
-console.log("the min is ", bst.getMin());
-console.log("the max is ", bst.getMax());
-console.log("***************In Order-Traversal ************");
-bst.inOrderTraversal(bst.root);
-console.log("************Post order Traversal**********");
-bst.postOrderTraversal(bst.root);
-console.log("************** Pre order Traversal**********");
-bst.preOrderTraversal(bst.root);
-console.log("***********************");
-bst.delete(20);
-console.log("the new root is ", bst.root);
-console.log("******** Tree **********");
-console.log(bst);
-console.log(bst.findNode(20, bst.root));
+console.log(bst.findSuccessorRecursive(7, bst.root));
