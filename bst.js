@@ -16,7 +16,7 @@ class BinarySearchTree {
   }
 
   findNewNodeParent(currentNode, key) {
-    if (key === currentNode.key) return false;
+    if (key === currentNode.key) return false; // node exists
     if (key > currentNode.key && currentNode.rightNode) {
       return this.findNewNodeParent(currentNode.rightNode, key);
     } else if (key < currentNode.key && currentNode.leftNode) {
@@ -163,16 +163,30 @@ class BinarySearchTree {
     }
   }
 
-  findSuccessorRecursive(key, node) {
-    let previous = null;
-    if (node.key == node) {
-      previous = node;
+  findSuccessorRecursive(key, startNode, parent = null) {
+    if (
+      !startNode ||
+      !key ||
+      !this.length ||
+      (key == this.root.key && !this.root.rightNode)
+    )
+      return parent.key;
+
+    if (startNode.key == key && startNode.rightNode) {
+      // if node has a rightNode successor is the rightNode;
+
+      return startNode.rightNode.key;
     }
-    if (node.leftNode) {
-      this.findSuccessorRecursive(key, node.leftNode);
+    if (startNode.key == key && !startNode.rightNode) {
+      // if righNode is not present return the parent
+
+      return parent.key;
     }
-    if (node.rightNode) {
-      this.findSuccessorRecursive(key, node.rightNode);
+
+    if (key > startNode.key) {
+      return this.findSuccessorRecursive(key, startNode.rightNode, startNode);
+    } else {
+      return this.findSuccessorRecursive(key, startNode.leftNode, startNode);
     }
   }
 
@@ -198,6 +212,19 @@ class BinarySearchTree {
       currentNode = currentNode.rightNode;
     }
     return previous;
+  }
+
+  findPredecessorRecursive(
+    key,
+    node,
+    init = { value: 0 },
+    predecessor = { value: 0 }
+  ) {
+    if (node.leftNode) {
+      this.findPredecessorRecursive(key, node.leftNode, init, predecessor);
+    }
+    if (node.key >= key && init.value === 0) {
+    }
   }
 
   // delete
