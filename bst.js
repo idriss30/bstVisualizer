@@ -169,8 +169,9 @@ class BinarySearchTree {
       !key ||
       !this.length ||
       (key == this.root.key && !this.root.rightNode)
-    )
+    ) {
       return parent.key;
+    }
 
     if (startNode.key == key && startNode.rightNode) {
       // if node has a rightNode successor is the rightNode;
@@ -178,7 +179,7 @@ class BinarySearchTree {
       return startNode.rightNode.key;
     }
     if (startNode.key == key && !startNode.rightNode) {
-      // if righNode is not present return the parent
+      // if righNode is not present return the parent's key
 
       return parent.key;
     }
@@ -214,16 +215,22 @@ class BinarySearchTree {
     return previous;
   }
 
-  findPredecessorRecursive(
-    key,
-    node,
-    init = { value: 0 },
-    predecessor = { value: 0 }
-  ) {
-    if (node.leftNode) {
-      this.findPredecessorRecursive(key, node.leftNode, init, predecessor);
+  findPredecessorRecursive(key, startingNode) {
+    if (
+      !startingNode ||
+      !key ||
+      !this.length ||
+      (key == this.root.key && !this.root.leftNode)
+    ) {
+      return null;
     }
-    if (node.key >= key && init.value === 0) {
+    if (key == startingNode.key && startingNode.leftNode) {
+      return startingNode.leftNode.key;
+    }
+    if (key < startingNode.key) {
+      return this.findPredecessorRecursive(key, startingNode.leftNode);
+    } else {
+      return this.findPredecessorRecursive(key, startingNode.leftNode);
     }
   }
 
@@ -355,3 +362,4 @@ bst.insert(7);
 bst.insert(14);
 
 console.log(bst.findSuccessorRecursive(7, bst.root));
+console.log(bst.findPredecessorRecursive(7, bst.root));
