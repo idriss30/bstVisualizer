@@ -198,9 +198,9 @@ class BinarySearchTree {
     const stack = [];
     let currentNode = bst.root;
     let previous = null;
-    while (currentNode !== null || stack.length > 0) {
+    while (currentNode || stack.length > 0) {
       // go all the way to the left
-      while (currentNode !== null) {
+      while (currentNode) {
         stack.push(currentNode);
         previous = currentNode;
         currentNode = currentNode.leftNode;
@@ -235,117 +235,121 @@ class BinarySearchTree {
   }
 
   // delete
-
-  // remove leaf node
-  removeLeaf(parent) {
-    // check if root;
-    if (parent === null) {
-      this.root = null;
-    } else {
-      if (parent.leftNode.key === key) {
-        parent.leftNode = null;
-      } else {
-        parent.rightNode = null;
-      }
-    }
-  }
-
-  removeNodeWithOneChild(parent, node, key) {
-    if (parent.leftNode.key === key) {
-      parent.leftNode = node.leftNode || node.rightNode;
-    } else if (parent.rightNode.key === key) {
-      parent.rightNode = node.rightNode || node.leftNode;
-    }
-
-    // element to remove is the root
-    if (parent === null) {
-      this.root = node.leftNode || node.rightNode;
-    }
-  }
-  getSubsetMin(node) {
-    // move right first
-    node = node.rightNode || null;
-    while (node.leftNode) {
-      node = node.leftNode;
-    }
-    return node;
-  }
-
-  getSubsetMinParent(node) {
-    let parent = node;
-    node = node.rightNode;
-    while (node.leftNode) {
-      parent = node;
-      node = node.leftNode;
-    }
-    return parent;
-  }
-
-  removeNodeWithTwoChildren(subTree, key) {
-    const subMin = this.getSubsetMin(subTree.node);
-    const subMinParent = this.getSubsetMinParent(subTree.node);
-
-    if (subMinParent.leftNode.key === subMin.key) {
-      subMinParent.leftNode = null;
-    }
-
-    // case node is root
-    if (key === this.root.key) {
-      subMin.leftNode = this.root.leftNode;
-      if (subMin.rightNode === null) {
-        subMin.rightNode = this.root.rightNode;
-      }
-      this.root = subMin;
-    } else {
-      // node is not root
-      if (subTree.parent.leftNode.key === key) {
-        subTree.parent.leftNode = subMin;
-      } else {
-        subTree.parent.rightNode = subMin;
-      }
-      subMin.leftNode = subTree.node.leftNode;
-      subMin.rightNode = subTree.node.rightNode || null;
-      subTree.node = subMin;
-    }
-  }
-
   delete(key) {
     // return false if root is empty
     if (!this.length) return false;
 
-    const subTree = {
-      node: this.root,
-      parent: null,
+    // remove leaf node
+    const removeLeaf = (parent) => {
+      //  root;
+      if (!parent) {
+        this.root = null;
+      } else {
+        // if leftNode of parent is key to remove,  assign left Node to null
+        if (parent.leftNode.key === key) {
+          parent.leftNode = null;
+        } else {
+          // the node is the right child of parent;
+          parent.rightNode = null;
+        }
+      }
     };
 
-    while (subTree.node) {
-      subTree.parent = subTree.node;
-
-      if (subTree.node.key > key) {
-        subTree.node = subTree.node.leftNode;
-      } else if (subTree.node.key < key) {
-        subTree.node = subTree.node.rightNode;
+    // remove a single child node;
+    const removeNodeWithOneChild = (parent, node) => {
+      if (parent.leftNode.key === key) {
+        parent.leftNode = node.leftNode || node.rightNode; // assign the parent node to the left or right node of the child.
+      } else if (parent.rightNode.key === key) {
+        parent.rightNode = node.leftNode || node.rightNode;
       }
 
-      if (key === subTree.node.key) {
-        // remove the leaf node
-        if (subTree.node.leftNode === null && subTree.node.rightNode === null) {
-          this.removeLeaf(subTree.parent);
-        } else if (
-          (subTree.node.leftNode !== null && subTree.node.rightNode === null) ||
-          (subTree.node.rightNode !== null && subTree.node.leftNode == null)
-        ) {
-          this.removeNodeWithOneChild(subTree.parent, subTree.node, key);
-          subTree.node = null;
-        } else {
-          this.removeNodeWithTwoChildren(subTree, key);
-        }
+      // element to remove is the root
+      if (parent === null) {
+        this.root = node.leftNode || node.rightNode;
+      }
+    };
 
-        this.length--;
-        return true;
+    const setSuccessorParentLeftNode = (node, successor) => {
+      node.leftNode = successor.rightNode ? successor.rightNode : null;
+    };
+    // remove a node with two children
+    const removeNodeWithTwoChildren = (parent, currentNode) => {
+      // find the successor for the subtree and keep track of his parent node
+      const subTreeCurrentNode = currentNode.rightNode;
+      let successor = subTreeCurrentNode.leftNode;
+      while (successor?.leftNode) {
+        subTreeCurrentNode = successor;
+        successor = successor.leftNode;
+      }
+
+      // case node is the root
+
+      if (!parent && successor) {
+        // node is root and successor is not the root of the subTree
+        // assign left child of his parent
+        setSuccessorParentLeftNode(subTreeCurrentNode, successor);
+        successor.leftNode = currentNode.leftNode;
+        successor.rightNode = currentNode.rightNode;
+        this.root = successor;
+      } else if (!parent && !successor) {
+        // successor is subTree root
+        successor = subTreeCurrentNode;
+        successor.leftNode = currentNode.leftNode;
+        this.root = successor;
+      }
+
+      // node is not the root;
+      if (parent && successor) {
+        setSuccessorParentLeftNode(subTreeCurrentNode, successor);
+        successor.leftNode = currentNode.leftNode;
+        successor.rightNode = currentNode.rightNode;
+      } else if (parent && !successor) {
+        successor = subTreeCurrentNode;
+        successor.leftNode = currentNode.leftNode;
+      }
+
+      // assign parent edges
+      if (parent && parent.leftNode.key == currentNode.key) {
+        parent.leftNode = successor;
+      } else if (parent && parent.rightNode == currentNode.key) {
+        parent.rightNode = successor;
+      }
+    };
+
+    let parent = null;
+    let currentNode = this.root;
+
+    while (currentNode) {
+      if (!parent) {
+        parent = currentNode;
+      }
+      if (key === currentNode.key) {
+        break;
+      } else if (key < currentNode.key) {
+        currentNode = currentNode.leftNode;
+      } else {
+        currentNode = currentNode.rightNode;
       }
     }
-    return false;
+
+    if (!currentNode) return false;
+
+    // node is found;
+    if (!currentNode.leftNode && !currentNode.rightNode) {
+      // node with no child;
+      removeLeaf(parent);
+    } else if (
+      (currentNode.leftNode && !currentNode.rightNode) ||
+      (currentNode.rightNode && !currentNode.leftNode)
+    ) {
+      // node with one child
+      removeNodeWithOneChild(parent, currentNode);
+    } else {
+      // node has two children;
+      removeNodeWithTwoChildren(parent, currentNode);
+    }
+    this.length--;
+    return true;
   }
 }
 
@@ -355,11 +359,15 @@ bst.insert(10);
 bst.insert(30);
 bst.insert(9);
 bst.insert(25);
+// new delete test
+/* bst.insert(27);
+bst.insert(28);
+bst.insert(26); */
 bst.insert(40);
 bst.insert(45);
 bst.insert(32);
 bst.insert(7);
 bst.insert(14);
 
-console.log(bst.findSuccessorRecursive(7, bst.root));
-console.log(bst.findPredecessorRecursive(7, bst.root));
+bst.delete(10);
+console.log(bst.root);
