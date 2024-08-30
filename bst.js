@@ -1,4 +1,4 @@
-/* implementation of a binary search tree holding numbers 
+/* implementation of a binary tree holding numbers 
 traversal, insertion, deletion, searching, predecessor, successor */
 
 class TreeNode {
@@ -51,62 +51,27 @@ class BinarySearchTree {
     return true;
   }
 
-  findNode2(key, startingNode) {
+  getNode(key, startingNode) {
     // return false when tree is empty or startingNode is empty
     if (!key || !startingNode || !this.length) return false;
     // move left if key is less
-    if (key < startingNode.key)
-      return this.findNode2(key, startingNode.leftNode);
+    if (key < startingNode.key) return this.getNode(key, startingNode.leftNode);
     // move right if key is greater
     if (key > startingNode.key)
-      return this.findNode2(key, startingNode.rightNode);
+      return this.getNode(key, startingNode.rightNode);
 
     return true;
   }
 
-  findNode(key, startingNode) {
-    // return false when tree is empty || starting node is null;
-    if (!this.length || !startingNode || !key) return false;
-    // move left or right in Tree
-    while (startingNode) {
-      if (key === startingNode.key) {
-        return true;
-      } else if (key > startingNode.key) {
-        startingNode = startingNode.rightNode;
-      } else {
-        startingNode = startingNode.leftNode;
-      }
-    }
-    return false;
-  }
-
-  getMinRecursive(node) {
+  getMin(node) {
     if (!node || !this.root) return false;
-    if (node.leftNode) return this.getMinRecursive(node.leftNode);
+    if (node.leftNode) return this.getMin(node.leftNode);
     return node;
   }
 
-  getMin() {
-    if (!this.length) return false;
-    let currentNode = this.root;
-    while (currentNode.leftNode) {
-      currentNode = currentNode.leftNode;
-    }
-    return currentNode;
-  }
-
-  getMax() {
-    if (!this.length) return false;
-    let currentNode = this.root;
-    while (currentNode.rightNode) {
-      currentNode = currentNode.rightNode;
-    }
-    return currentNode;
-  }
-
-  getMaxRecursive(node) {
+  getMax(node) {
     if (!node || !this.root) return false;
-    if (node.rightNode) return this.getMaxRecursive(node.rightNode);
+    if (node.rightNode) return this.getMax(node.rightNode);
     return node;
   }
   // in order traversal
@@ -145,25 +110,8 @@ class BinarySearchTree {
   //findSuccessor
   // node that comes right after key in an in order traversal
   // smaller key value that's greater than current key
-  findSuccessor(key) {
-    if (!this.length) return -1;
-    const stack = [];
-    let currentNode = bst.root;
-    while (currentNode !== null || stack.length > 0) {
-      // go all the way to the left
-      while (currentNode !== null) {
-        stack.push(currentNode);
-        currentNode = currentNode.leftNode;
-      }
-      currentNode = stack.pop();
-      if (currentNode.key > key) {
-        return currentNode;
-      }
-      currentNode = currentNode.rightNode;
-    }
-  }
 
-  findSuccessorRecursive(key, startNode, parent = null) {
+  getSuccessor(key, startNode, parent = null) {
     if (
       !startNode ||
       !key ||
@@ -185,37 +133,16 @@ class BinarySearchTree {
     }
 
     if (key > startNode.key) {
-      return this.findSuccessorRecursive(key, startNode.rightNode, startNode);
+      return this.getSuccessor(key, startNode.rightNode, startNode);
     } else {
-      return this.findSuccessorRecursive(key, startNode.leftNode, startNode);
+      return this.getSuccessor(key, startNode.leftNode, startNode);
     }
   }
 
   // predecessor
   // items who come before key in an inOrder traversal
-  findPredecessor(key) {
-    if (!this.length) return -1;
-    const stack = [];
-    let currentNode = bst.root;
-    let previous = null;
-    while (currentNode || stack.length > 0) {
-      // go all the way to the left
-      while (currentNode) {
-        stack.push(currentNode);
-        previous = currentNode;
-        currentNode = currentNode.leftNode;
-      }
-      currentNode = stack.pop();
-      if (currentNode.key >= key) {
-        break;
-      }
-      previous = currentNode;
-      currentNode = currentNode.rightNode;
-    }
-    return previous;
-  }
 
-  findPredecessorRecursive(key, startingNode) {
+  getPredecessor(key, startingNode) {
     if (
       !startingNode ||
       !key ||
@@ -228,9 +155,9 @@ class BinarySearchTree {
       return startingNode.leftNode.key;
     }
     if (key < startingNode.key) {
-      return this.findPredecessorRecursive(key, startingNode.leftNode);
+      return this.getPredecessor(key, startingNode.leftNode);
     } else {
-      return this.findPredecessorRecursive(key, startingNode.leftNode);
+      return this.getPredecessor(key, startingNode.leftNode);
     }
   }
 
