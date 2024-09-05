@@ -1,210 +1,199 @@
-/*
-implementation of a Red black Tree with different methods for searching, inserting, 
-deleting, Depth-first search.
-
-*/
-
-// single node class
-class RbtNode {
-  constructor(key) {
+class rbNode {
+  constructor(key, parent = null) {
     this.key = key;
-    this.parent = null;
-    this.leftNode = null;
-    this.rightNode = null;
+    this.left = null;
+    this.right = null;
     this.isBlack = false;
+    this.parent = parent;
   }
 }
 
-class RbtTree {
+class RedBlackTree {
   constructor() {
     this.size = 0;
     this.root = null;
   }
-
-  // insert
-
-  findParent(key, node) {
-    // return false if key is already present;
-    if (key === node.key) {
-      return false;
-    }
-    if (key > node.key && node.rightNode) {
-      return this.findParent(key, node.rightNode);
-    } else if (key < node.key && node.leftNode) {
-      return this.findParent(key, node.leftNode);
-    }
-    return node;
-  }
-
-  // define which operation to perform
-  isColorFlip(node) {
-    if (!node.parent) {
-      return false;
-    }
-
-    return node.parent.leftNode.key === node.key
-      ? node.parent.rightNode.isBlack === false
-      : node.parent.leftNode.isBlack === false;
-  }
-
-  colorFlip(node) {
-    // get the root and change children
-    node.isBlack = false;
-    node.leftNode.isBlack = true;
-    node.rightNode.isBlack = true;
-  }
-  colorFlipAfterRotation(node) {
-    node.isBlack = true;
-    node.leftNode.isBlack = false;
-    node.rightNode.isBlack = false;
-  }
-
   setRoot(node) {
     this.root = node;
     this.root.isBlack = true;
   }
-  leftRotation(node) {
-    if (!node || !this.size) return false;
-    let nodeParent = node.parent;
-    let nodeGrandParent = node.parent.parent;
-
-    // assign root if grandParent is null;
-    if (!nodeGrandParent && nodeParent.key === this.root.key) {
-      this.setRoot(node);
-    }
-    nodeParent.rightNode = node.leftNode || null;
-    nodeParent.parent = node;
-    nodeGrandParent.rightNode = node;
-    node.leftNode = nodeParent;
-    node.parent = nodeGrandParent;
-
-    // change colors
-    this.colorFlipAfterRotation(nodeGrandParent);
-    return true;
-  }
-
-  rightRotation(node) {
-    if (!node || !this.size) return false;
-
-    let nodeParent = node.parent;
-    let nodeGrandParent = node.parent.parent;
-
-    if (!nodeGrandParent && nodeParent.key === this.root.key) {
-      this.setRoot(node);
+  getParent(key, current) {
+    if (current.key === key) {
+      return false;
     }
 
-    nodeParent.leftNode = node.rightNode || null;
-    nodeParent.parent = node;
-    nodeGrandParent.leftNode = node;
-    node.rightNode = nodeParent;
-    node.parent = nodeGrandParent;
-
-    // change colors
-    this.colorFlipAfterRotation(nodeGrandParent);
+    if (key > current.key && current.right) {
+      return this.getParent(key, current.right);
+    } else if (key < current.key && current.left) {
+      return this.getParent(key, current.left);
+    }
+    return current;
   }
 
-  performRotation(nodeParent, node) {
-    const grandParent = nodeParent.parent;
-    // left rotation
-    if (grandParent.key < nodeParent.key && nodeParent.key < node.key) {
-      this.leftRotation(node);
-    } else if (grandParent.key > nodeParent.key && nodeParent.key > node.key) {
-      // right Rotation
-      this.rightRotation(node);
-    } else if (grandParent.key > nodeParent.key && nodeParent.key < node.key) {
-      // left right rotation
-      this.leftRotation(node);
-      this.rightRotation(node);
+  setNode(parent, node) {
+    if (parent.key > node.key) {
+      parent.left = node;
     } else {
-      // right left rotation
-      this.rightRotation(node);
-      this.leftRotation(node);
+      parent.right = node;
     }
+    node.parent = parent;
+  }
+
+  isColorFlip(node) {
+    // take a node and check is sibling
+    if (!node.parent || !node) return false;
+    let parent = node.parent;
+    if (parent.key > node.key && parent.right) {
+      return parent.right.isBlack === false;
+    } else if (parent.key < node.key && parent.left) {
+      return parent.left.isBlack === false;
+    } else {
+      return false;
+    }
+  }
+  colorFlip(node) {
+    // take a subtree's root and color child;
+    node.isBlack = false;
+    if (node.left) {
+      node.left.isBlack = true;
+    }
+    if (node.right) {
+      node.right.isBlack = true;
+    }
+  }
+  rightRotation(node) {
+    let nodeParent = node.parent;
+    let leftNode = node.left;
+    let leftNodeChild = leftNode.right || null;
+    if (!nodeParent) {
+      this.setRoot(leftNode);
+      leftNode.parent = null;
+    } else {
+      if (nodeParent.left && nodeParent.left.key === node.key) {
+        nodeParent.left = leftNode;
+      } else {
+        nodeParent.right = leftNode;
+      }
+      leftNode.parent = nodeParent;
+    }
+    leftNode.right = node;
+    node.left = leftNodeChild;
+    node.parent = leftNode;
+  }
+  leftRotation(node) {
+    let nodeParent = node.parent;
+    let rightNode = node.right;
+    let rightNodeChild = rightNode.left || null;
+    if (!nodeParent) {
+      this.setRoot(rightNode);
+      rightNode.parent = null;
+    } else {
+      if (nodeParent.left && nodeParent.left.key === node.key) {
+        nodeParent.left = rightNode;
+      } else {
+        nodeParent.right = rightNode;
+      }
+      rightNode.parent = nodeParent;
+    }
+    rightNode.left = node;
+    node.right = rightNodeChild;
+    node.parent = rightNode;
+  }
+  colorFlipAfterRotation(node) {
+    node.isBlack = true;
+    if (node.left) {
+      node.left.isBlack = false;
+    }
+    if (node.right) {
+      node.right.isBlack = false;
+    }
+  }
+
+  performRotation(parent, node) {
+    if (!parent || !node) return false;
+    let grandParent = parent.parent;
+    if (grandParent.key > parent.key && parent.key > node.key) {
+      this.rightRotation(grandParent);
+    } else if (grandParent.key < parent.key && parent.key < node.key) {
+      this.leftRotation(grandParent);
+    } else if (grandParent.key < parent.key && parent.key > node.key) {
+      this.rightRotation(parent);
+      this.leftRotation(grandParent);
+    } else {
+      this.leftRotation(parent);
+      this.rightRotation(grandParent);
+    }
+    this.colorFlipAfterRotation(parent);
   }
 
   balance(node) {
     // return true when there is no more node to process
 
-    if (!this.size || !node) return true; //
-    // adjust node black property
-    if (node.key === this.root.key && this.root.isBlack === false) {
+    const rotateOrFlip = (node) => {
+      if (this.isColorFlip(node.parent)) {
+        this.colorFlip(node.parent.parent);
+      } else {
+        this.performRotation(node.parent.parent);
+      }
+    };
+
+    if (node.key === this.root.key) {
       this.root.isBlack = true;
+      return true; // nothing to balance;
     }
-    // look for red violation
-    const isNodeRed = node.isBlack === false;
-    const isLeftChildRed = node.leftNode?.isBlack === false;
-    const isRightChildRed = node.rightNode?.isBlack === false;
-    if (isNodeRed && isLeftChildRed) {
-      if (this.isColorFlip(node.parent)) {
-        this.colorFlip(node.parent.parent);
-      } else {
-        this.performRotation(node, node.leftNode);
-      }
-    } else if (isNodeRed && isRightChildRed) {
-      if (this.isColorFlip(node.parent)) {
-        this.colorFlip(node.parent.parent);
-      } else {
-        this.performRotation(node, node.rightNode);
-      }
+    if (node.isBlack === false && node.parent.isBlack === false) {
+      rotateOrFlip(node);
     }
-    // continue the tree process
-    this.balance(node.leftNode);
-    this.balance(node.rightNode);
+
+    if (node.parent.isBlack === false && node.parent.right?.isBlack === false) {
+      rotateOrFlip(node);
+    }
+    return this.balance(node.parent);
   }
-
+  // insert function
   insert(key) {
+    // add root
     if (!this.size) {
-      const node = new RbtNode(key);
-      node.isBlack = true;
-      this.root = node;
+      const newNode = new rbNode(key);
+      this.setRoot(newNode);
       this.size++;
-
-      return true;
-    } else {
-      const parent = this.findParent(key, this.root);
-      if (!parent) return false; // node exists already;
-      const newNode = new RbtNode(key);
-      newNode.parent = parent; // assign new node's parent
-      // insert when parent is black.  no violation new node is red by default;
-      if (parent.isBlack && key > parent.key) {
-        parent.rightNode = newNode;
-      } else if (parent.isBlack && key < parent.key) {
-        parent.leftNode = newNode;
-      }
-
-      // possible violation for consecutibe red nodes on the same path
-      if (!parent.isBlack) {
-        let isColorFlip = this.isColorFlip(parent);
-
-        // handle color flip
-        if (isColorFlip) {
-          this.colorFlip(parent.parent); // pass the grand parent
-          // attach node;
-          if (parent.key > key) {
-            parent.leftNode = newNode;
-          } else {
-            parent.rightNode = newNode;
-          }
-        } else {
-          // figure out which rotation to perform for balancing
-          this.performRotation(parent, newNode);
-          this.colorFlipAfterRotation(parent.parent);
-        }
-      }
-      this.size++;
-      this.balance(this.root);
       return true;
     }
+
+    // find Parent if tree is not empty;
+    let nodeParent = this.getParent(key, this.root);
+    if (!nodeParent) return false;
+    const newNode = new rbNode(key);
+    this.setNode(nodeParent, newNode);
+
+    if (nodeParent.isBlack) {
+      // no violation adding red child
+      this.size++;
+      return true;
+    }
+
+    // parent is not black, so violation
+    const isColorFlipViolation = this.isColorFlip(nodeParent);
+    if (isColorFlipViolation) {
+      this.colorFlip(nodeParent.parent);
+    } else {
+      this.performRotation(nodeParent, newNode);
+    }
+    this.size++;
+    this.balance(newNode);
+    return true;
   }
 }
 
-const redBlackTree = new RbtTree();
-
-redBlackTree.insert(20);
-redBlackTree.insert(10);
-redBlackTree.insert(30);
-redBlackTree.insert(9);
-redBlackTree.insert(14);
-/* redBlackTree.insert(25);
-redBlackTree.insert(40) */
-console.log(redBlackTree.root);
+const rbt = new RedBlackTree();
+rbt.insert(20);
+rbt.insert(10);
+rbt.insert(30);
+rbt.insert(9);
+rbt.insert(25);
+rbt.insert(40);
+rbt.insert(45);
+rbt.insert(32);
+rbt.insert(7);
+rbt.insert(14);
+console.log(rbt.root);
