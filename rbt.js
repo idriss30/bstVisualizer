@@ -184,16 +184,16 @@ class RedBlackTree {
     return true;
   }
 }
-
+//5,6,2,8,9.50.13.58,23,11
 const rbt = new RedBlackTree();
-rbt.insert(20);
-rbt.insert(10);
-rbt.insert(30);
+rbt.insert(5);
+rbt.insert(6);
+rbt.insert(2);
+rbt.insert(8);
 rbt.insert(9);
-rbt.insert(25);
-rbt.insert(40);
-rbt.insert(45);
-rbt.insert(32);
-rbt.insert(7);
-rbt.insert(14);
+rbt.insert(50);
+rbt.insert(13);
+rbt.insert(58);
+rbt.insert(23);
+rbt.insert(11);
 console.log(rbt.root);
