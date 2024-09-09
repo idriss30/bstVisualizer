@@ -62,6 +62,7 @@ class RedBlackTree {
     }
   }
   rightRotation(node) {
+    // perform a right rotation on a node;
     let nodeParent = node.parent;
     let leftNode = node.left;
     let leftNodeChild = leftNode.right || null;
@@ -81,6 +82,7 @@ class RedBlackTree {
     node.parent = leftNode;
   }
   leftRotation(node) {
+    // perform left rotation
     let nodeParent = node.parent;
     let rightNode = node.right;
     let rightNodeChild = rightNode.left || null;
@@ -183,6 +185,84 @@ class RedBlackTree {
     this.balance(newNode);
     return true;
   }
+  setSuccessorParentLeftNode(node, successor) {
+    node.leftNode = successor.rightNode ? successor.rightNode : null;
+  }
+
+  // remove a node with two children
+  removeNodeWithTwoChildren(currentNode) {
+    // find the successor for the subtree and keep track of his parent node
+    const subTreeCurrentNode = currentNode.right;
+    let successor = subTreeCurrentNode.left;
+    while (successor?.leftNode) {
+      subTreeCurrentNode = successor;
+      successor = successor.leftNode;
+    }
+
+    // case node is the root
+
+    if (!currentNode.parent && successor) {
+      // node is root and successor is not the root of the subTree
+      // assign left child of his parent
+      this.setSuccessorParentLeftNode(subTreeCurrentNode, successor);
+      successor.left = currentNode.left;
+      successor.right = currentNode.right;
+      this.setRoot(successor);
+    } else if (!currentNode.parent && !successor) {
+      // successor is subTree root
+      successor = subTreeCurrentNode;
+      successor.left = currentNode.left;
+      this.setRoot(successor);
+    }
+
+    // node is not the root;
+    if (currentNode.parent && successor) {
+      this.setSuccessorParentLeftNode(subTreeCurrentNode, successor);
+      successor.left = currentNode.left;
+      successor.right = currentNode.right;
+    } else if (currentNode.parent && !successor) {
+      successor = subTreeCurrentNode;
+      successor.left = currentNode.left;
+    }
+
+    // assign parent edges
+    if (currentNode.parent && currentNode.parent.left.key == currentNode.key) {
+      currentNode.parent.left = successor;
+    } else if (
+      currentNode.parent &&
+      currentNode.parent.right == currentNode.key
+    ) {
+      currentNode.parent.right = successor;
+    }
+  }
+  delete(key) {
+    if (!key || !this.root) {
+      return false;
+    }
+    // look up node;
+    let currentNode = this.root;
+    while (currentNode) {
+      if (currentNode.key > key) {
+        currentNode = currentNode.left || null;
+      } else if (currentNode.key < key) {
+        currentNode = currentNode.right || null;
+      } else {
+        break;
+      }
+    }
+
+    if (currentNode.key === key) {
+      // node is found check number of children
+      if (currentNode.left && currentNode.right) {
+        // no possible violation remove the node;
+        this.removeNodeWithTwoChildren(currentNode);
+        return true;
+      }
+    }
+
+    // node was not found;
+    return false;
+  }
 }
 //5,6,2,8,9.50.13.58,23,11
 const rbt = new RedBlackTree();
@@ -193,7 +273,9 @@ rbt.insert(8);
 rbt.insert(9);
 rbt.insert(50);
 rbt.insert(13);
-rbt.insert(58);
+/*rbt.insert(58);
 rbt.insert(23);
-rbt.insert(11);
+rbt.insert(11); */
+
+//console.log(rbt.delete(5));
 console.log(rbt.root);

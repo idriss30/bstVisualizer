@@ -1,5 +1,3 @@
-import * as d3 from "d3";
-
 class TreeNode {
   constructor(key, parent = null) {
     this.key = key;
@@ -77,7 +75,11 @@ class BinarySearchTree {
     // loop through tree
     let currentNode = this.root;
     while (currentNode) {
-      if (currentNode.key === key) return true;
+      if (currentNode.key === key) {
+        console.log(currentNode.key);
+        console.log(currentNode.parent);
+        return true;
+      }
       currentNode =
         currentNode.key < key ? currentNode.rightChild : currentNode.leftChild;
     }
@@ -171,6 +173,107 @@ class BinarySearchTree {
     console.log(node.key);
   }
 
+  // iterative approach for postOrder
+  iterativePostOrder(root) {
+    if (root == null) return;
+
+    const stack = [];
+    const outputStack = [];
+
+    stack.push(root);
+
+    while (stack.length > 0) {
+      const currentNode = stack.pop();
+      outputStack.push(currentNode.key);
+
+      if (currentNode.leftChild) {
+        stack.push(currentNode.leftChild);
+      }
+
+      if (currentNode.rightChild) {
+        stack.push(currentNode.rightChild);
+      }
+    }
+    // Print the result in reverse order
+    while (outputStack.length > 0) {
+      console.log(outputStack.pop());
+    }
+  }
+
+  removeLeafNode(node) {
+    // check if root
+    if (this.root.key === node.key) {
+      // delete key;
+      this.root = null;
+      this.length--;
+      return true;
+    } else {
+      if (node.parent.leftChild && node.parent.leftChild.key === node.key) {
+        node.parent.leftChild = null;
+      } else if (
+        node.parent.rightChild &&
+        node.parent.rightChild.key === node.key
+      ) {
+        node.parent.rightChild = null;
+      }
+      this.length--;
+      return true;
+    }
+  }
+  removeNodeWithOneChild(currentNode) {
+    // identify node
+    // update parent pointer
+    // replace node with is child;
+    // node is a leftChild
+    if (currentNode.parent.leftChild.key === currentNode.key) {
+      currentNode.parent.leftChild =
+        currentNode?.leftChild || currentNode?.rightChild;
+    } else {
+      // node is  a right Child
+      currentNode.parent.rightChild =
+        currentNode?.leftChid || currentNode?.rightchild;
+    }
+    // node has leftChild
+    if (currentNode.leftChild) {
+      currentNode = currentNode.leftChild;
+    } else {
+      // node has rightChild
+      currentNode = currentNode.rightChild;
+    }
+    this.length--;
+    return true;
+  }
+  // delete method
+  delete(key) {
+    if (key === null || this.length === 0) return false;
+    let currentNode = this.root;
+    // loop through tree
+    while (currentNode !== null) {
+      // compare key value
+      // assign new currentNode based on comparison and go to next iteration
+      if (currentNode.key < key) {
+        currentNode = currentNode.rightChild;
+        continue;
+      }
+      if (currentNode.key > key) {
+        currentNode = currentNode.leftChild;
+        continue;
+      }
+
+      if (currentNode.key === key) {
+        // remove leave node;
+        if (currentNode.leftChild === null && currentNode.rightChild === null) {
+          return this.removeLeafNode(currentNode);
+        } else if (currentNode.leftChild || currentNode.rightChild) {
+          // remove node with one child;
+          return this.removeNodeWithOneChild(currentNode);
+        } else {
+        }
+      }
+    }
+    return false;
+  }
+
   // min and max return false when tree is empty;
   // move in linear chain until value of left/right child is null;
   getMinValue() {
@@ -194,16 +297,16 @@ class BinarySearchTree {
 }
 
 const bst = new BinarySearchTree();
-bst.insert("hello my name is");
+/* bst.insert("hello my name is");
 bst.insert(20);
 bst.insert(25);
 bst.insert(10);
 bst.insert(9);
 bst.insert(11);
 bst.insert(30);
-bst.insert(22);
-/* 
-console.log("*************");
+bst.insert(22); */
+
+/* console.log("*************");
 console.log("**********");
 console.log(
   "min value ",
@@ -221,11 +324,25 @@ console.log(
 console.log("########## find ###########");
 console.log(bst.findNode(30));
 console.log(bst.findNode(1000));
- */
 
-//bst.iterativeInOrderTraversalTraversal(bst.root);
-//bst.iterativeInOrderTraversal(bst.root)
-//bst.preOrderTraversal(bst.root);
-//console.log("********* iterative pre order ******************");
-//bst.iterativePreOrderTraversal(bst.root);
-bst.postOrderTraversal(bst.root);
+bst.iterativeInOrderTraversalTraversal(bst.root);
+bst.iterativeInOrderTraversal(bst.root);
+bst.preOrderTraversal(bst.root);
+console.log("********* iterative pre order ******************");
+bst.iterativePreOrderTraversal(bst.root);
+
+ */
+//bst.postOrderTraversal(bst.root);
+//console.log("********* iterative **************");
+//bst.iterativePostOrder(bst.root);
+//console.log(bst);
+//console.log(bst.delete(100));
+//console.log(bst.delete());
+
+bst.insert(10);
+bst.insert(5);
+bst.insert(15);
+bst.insert(12);
+
+console.log(bst.findNode(12));
+console.log("................");
