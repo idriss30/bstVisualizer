@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "description": "binary search tree visualization",
   "main": "index.js",
+  "type":"module",
+  
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "idris C",
   "license": "ISC",
-  "type":"module",
+
   "dependencies": {
     "d3": "^7.8.5"
   }
