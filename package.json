@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "description": "binary search tree visualization",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-     "start": "webpack serve --config utility/webpack.config.js --env env=dev",
-    "build": "webpack --config utility/webpack.config.js --env env=prod"
+    "start": "webpack serve --config utility/webpack-config.js --env env=dev",
+    "build": "webpack --config utility/webpack-config.js --env env=prod"
   },
   "author": "idris C",
   "license": "ISC",
@@ -27,6 +26,7 @@
     "sass-loader": "^16.0.3",
     "style-loader": "^4.0.0",
     "webpack": "^5.96.1",
+    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.1.0",
     "webpack-merge": "^6.0.1"
