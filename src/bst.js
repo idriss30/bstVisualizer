@@ -4,8 +4,8 @@ traversal, insertion, deletion, searching, predecessor, successor */
 class TreeNode {
   constructor(key) {
     this.key = key;
-    this.leftNode = null;
-    this.rightNode = null;
+    this.left = null;
+    this.right = null;
   }
 }
 
@@ -17,10 +17,10 @@ class BinarySearchTree {
 
   findNewNodeParent(currentNode, key) {
     if (key === currentNode.key) return false; // node exists
-    if (key > currentNode.key && currentNode.rightNode) {
-      return this.findNewNodeParent(currentNode.rightNode, key);
-    } else if (key < currentNode.key && currentNode.leftNode) {
-      return this.findNewNodeParent(currentNode.leftNode, key);
+    if (key > currentNode.key && currentNode.right) {
+      return this.findNewNodeParent(currentNode.right, key);
+    } else if (key < currentNode.key && currentNode.left) {
+      return this.findNewNodeParent(currentNode.left, key);
     }
 
     return currentNode;
@@ -41,9 +41,9 @@ class BinarySearchTree {
       // place node based on key value
       const newNode = new TreeNode(key);
       if (key > nodeParent.key) {
-        nodeParent.rightNode = newNode;
+        nodeParent.right = newNode;
       } else {
-        nodeParent.leftNode = newNode;
+        nodeParent.left = newNode;
       }
     }
 
@@ -55,23 +55,22 @@ class BinarySearchTree {
     // return false when tree is empty or startingNode is empty
     if (!key || !startingNode || !this.length) return false;
     // move left if key is less
-    if (key < startingNode.key) return this.getNode(key, startingNode.leftNode);
+    if (key < startingNode.key) return this.getNode(key, startingNode.left);
     // move right if key is greater
-    if (key > startingNode.key)
-      return this.getNode(key, startingNode.rightNode);
+    if (key > startingNode.key) return this.getNode(key, startingNode.right);
 
     return true;
   }
 
   getMin(node) {
     if (!node || !this.root) return false;
-    if (node.leftNode) return this.getMin(node.leftNode);
+    if (node.left) return this.getMin(node.left);
     return node;
   }
 
   getMax(node) {
     if (!node || !this.root) return false;
-    if (node.rightNode) return this.getMax(node.rightNode);
+    if (node.right) return this.getMax(node.right);
     return node;
   }
   // in order traversal
@@ -80,10 +79,10 @@ class BinarySearchTree {
 
   inOrderTraversal(node) {
     if (!node || !this.length) return false;
-    this.inOrderTraversal(node.leftNode);
+    this.inOrderTraversal(node.left);
     // do something with the currentNode;
     console.log(node.key);
-    this.inOrderTraversal(node.rightNode);
+    this.inOrderTraversal(node.right);
   }
 
   // pre order traversal
@@ -93,8 +92,8 @@ class BinarySearchTree {
   preOrderTraversal(node) {
     if (!node || !this.length) return false;
     console.log(node.key);
-    this.preOrderTraversal(node.leftNode);
-    this.preOrderTraversal(node.rightNode);
+    this.preOrderTraversal(node.left);
+    this.preOrderTraversal(node.right);
   }
 
   // postOrderTraversal
@@ -102,8 +101,8 @@ class BinarySearchTree {
   // left then right then current
   postOrderTraversal(node) {
     if (!node || !this.length) return false;
-    this.postOrderTraversal(node.leftNode);
-    this.postOrderTraversal(node.rightNode);
+    this.postOrderTraversal(node.left);
+    this.postOrderTraversal(node.right);
     console.log(node.key);
   }
 
@@ -116,26 +115,26 @@ class BinarySearchTree {
       !startNode ||
       !key ||
       !this.length ||
-      (key == this.root.key && !this.root.rightNode)
+      (key == this.root.key && !this.root.right)
     ) {
       return parent.key;
     }
 
-    if (startNode.key == key && startNode.rightNode) {
-      // if node has a rightNode successor is the rightNode;
+    if (startNode.key == key && startNode.right) {
+      // if node has a right successor is the right;
 
-      return startNode.rightNode.key;
+      return startNode.right.key;
     }
-    if (startNode.key == key && !startNode.rightNode) {
+    if (startNode.key == key && !startNode.right) {
       // if righNode is not present return the parent's key
 
       return parent.key;
     }
 
     if (key > startNode.key) {
-      return this.getSuccessor(key, startNode.rightNode, startNode);
+      return this.getSuccessor(key, startNode.right, startNode);
     } else {
-      return this.getSuccessor(key, startNode.leftNode, startNode);
+      return this.getSuccessor(key, startNode.left, startNode);
     }
   }
 
@@ -147,17 +146,17 @@ class BinarySearchTree {
       !startingNode ||
       !key ||
       !this.length ||
-      (key == this.root.key && !this.root.leftNode)
+      (key == this.root.key && !this.root.left)
     ) {
       return null;
     }
-    if (key == startingNode.key && startingNode.leftNode) {
-      return startingNode.leftNode.key;
+    if (key == startingNode.key && startingNode.left) {
+      return startingNode.left.key;
     }
     if (key < startingNode.key) {
-      return this.getPredecessor(key, startingNode.leftNode);
+      return this.getPredecessor(key, startingNode.left);
     } else {
-      return this.getPredecessor(key, startingNode.leftNode);
+      return this.getPredecessor(key, startingNode.left);
     }
   }
 
@@ -172,41 +171,41 @@ class BinarySearchTree {
       if (!parent) {
         this.root = null;
       } else {
-        // if leftNode of parent is key to remove,  assign left Node to null
-        if (parent.leftNode.key === key) {
-          parent.leftNode = null;
+        // if left of parent is key to remove,  assign left Node to null
+        if (parent.left.key === key) {
+          parent.left = null;
         } else {
           // the node is the right child of parent;
-          parent.rightNode = null;
+          parent.right = null;
         }
       }
     };
 
     // remove a single child node;
     const removeNodeWithOneChild = (parent, node) => {
-      if (parent.leftNode.key === key) {
-        parent.leftNode = node.leftNode || node.rightNode; // assign the parent node to the left or right node of the child.
-      } else if (parent.rightNode.key === key) {
-        parent.rightNode = node.leftNode || node.rightNode;
+      if (parent.left.key === key) {
+        parent.left = node.left || node.right; // assign the parent node to the left or right node of the child.
+      } else if (parent.right.key === key) {
+        parent.right = node.left || node.right;
       }
 
       // element to remove is the root
       if (parent === null) {
-        this.root = node.leftNode || node.rightNode;
+        this.root = node.left || node.right;
       }
     };
 
     const setSuccessorParentLeftNode = (node, successor) => {
-      node.leftNode = successor.rightNode ? successor.rightNode : null;
+      node.left = successor.right ? successor.right : null;
     };
     // remove a node with two children
     const removeNodeWithTwoChildren = (parent, currentNode) => {
       // find the successor for the subtree and keep track of his parent node
-      const subTreeCurrentNode = currentNode.rightNode;
-      let successor = subTreeCurrentNode.leftNode;
-      while (successor?.leftNode) {
+      const subTreeCurrentNode = currentNode.right;
+      let successor = subTreeCurrentNode.left;
+      while (successor?.left) {
         subTreeCurrentNode = successor;
-        successor = successor.leftNode;
+        successor = successor.left;
       }
 
       // case node is the root
@@ -215,31 +214,31 @@ class BinarySearchTree {
         // node is root and successor is not the root of the subTree
         // assign left child of his parent
         setSuccessorParentLeftNode(subTreeCurrentNode, successor);
-        successor.leftNode = currentNode.leftNode;
-        successor.rightNode = currentNode.rightNode;
+        successor.left = currentNode.left;
+        successor.right = currentNode.right;
         this.root = successor;
       } else if (!parent && !successor) {
         // successor is subTree root
         successor = subTreeCurrentNode;
-        successor.leftNode = currentNode.leftNode;
+        successor.left = currentNode.left;
         this.root = successor;
       }
 
       // node is not the root;
       if (parent && successor) {
         setSuccessorParentLeftNode(subTreeCurrentNode, successor);
-        successor.leftNode = currentNode.leftNode;
-        successor.rightNode = currentNode.rightNode;
+        successor.left = currentNode.left;
+        successor.right = currentNode.right;
       } else if (parent && !successor) {
         successor = subTreeCurrentNode;
-        successor.leftNode = currentNode.leftNode;
+        successor.left = currentNode.left;
       }
 
       // assign parent edges
-      if (parent && parent.leftNode.key == currentNode.key) {
-        parent.leftNode = successor;
-      } else if (parent && parent.rightNode == currentNode.key) {
-        parent.rightNode = successor;
+      if (parent && parent.left.key == currentNode.key) {
+        parent.left = successor;
+      } else if (parent && parent.right == currentNode.key) {
+        parent.right = successor;
       }
     };
 
@@ -253,21 +252,21 @@ class BinarySearchTree {
       if (key === currentNode.key) {
         break;
       } else if (key < currentNode.key) {
-        currentNode = currentNode.leftNode;
+        currentNode = currentNode.left;
       } else {
-        currentNode = currentNode.rightNode;
+        currentNode = currentNode.right;
       }
     }
 
     if (!currentNode) return false;
 
     // node is found;
-    if (!currentNode.leftNode && !currentNode.rightNode) {
+    if (!currentNode.left && !currentNode.right) {
       // node with no child;
       removeLeaf(parent);
     } else if (
-      (currentNode.leftNode && !currentNode.rightNode) ||
-      (currentNode.rightNode && !currentNode.leftNode)
+      (currentNode.left && !currentNode.right) ||
+      (currentNode.right && !currentNode.left)
     ) {
       // node with one child
       removeNodeWithOneChild(parent, currentNode);
