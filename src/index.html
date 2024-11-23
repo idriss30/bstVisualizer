@@ -4,32 +4,111 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="binary search tree visualization" />
-    <meta name="description" content="build a binary search" />
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script type="module" src="./index.js"></script>
-
-    <link rel="stylesheet" href="index.css" />
-
-    <title>Binary search tree vizualization</title>
+    <title>Binary Search Tree Visualization</title>
   </head>
   <body>
     <header>
       <nav></nav>
     </header>
     <main>
+      <h1>Binary Search Tree Visualization, Powered by D3.js</h1>
       <div class="bst">
-        <h1>Binary search Tree visualization, powered by D3.js</h1>
+        <div class="bst__commands">
+          <!-- <p>
+            Use the form below to perform operations. Only positive integers up
+            to 1000 are allowed. You can toggle between a regular binary tree or
+            a balanced red black tree
+          </p> -->
+          <form class="bst__form">
+            <!--          <div>
+              <fieldset>
+                <legend>/Regular bst/ red black tree</legend>
+                <label for="tree-select">Choose Tree Type:</label>
+                <select id="tree-select">
+                  <option value="bst">Regular BST</option>
+                  <option value="rbt">Red-Black Tree</option>
+                </select>
+              </fieldset>
+            </div> -->
 
-        <p>
-          Use the form below to perform operation, only positive integer are
-          allowed. You can not use number greater than 1000.
-        </p>
-        <form>
-          <input type="text" id="insert" />
-          <input type="button" value="insert" />
-          <input type="text" id="delete" />
-          <input type="button" value="delete" />
-        </form>
+            <!-- Group Insert/Delete/Find -->
+            <div class="bst__form-flex">
+              <fieldset>
+                <legend>Insert/Delete/Find</legend>
+
+                <input type="text" id="insert" />
+                <input
+                  type="button"
+                  value="Insert"
+                  class="bst__button-insert"
+                />
+
+                <input type="text" id="delete" />
+                <input
+                  type="button"
+                  value="Delete"
+                  class="bst__button-delete"
+                />
+
+                <label for="find">Find:</label>
+                <input type="text" id="find" />
+                <input type="button" value="Find" class="bst__button-find" />
+              </fieldset>
+            </div>
+
+            <!-- Traversal -->
+            <div class="bst__form-flex">
+              <fieldset>
+                <legend>Traversal</legend>
+                <input
+                  type="button"
+                  value="PostOrder"
+                  class="bst__button-postorder"
+                />
+                <input
+                  type="button"
+                  value="PreOrder"
+                  class="bst__button-preorder"
+                />
+                <input
+                  type="button"
+                  value="InOrder"
+                  class="bst__button-inorder"
+                />
+              </fieldset>
+            </div>
+            <div classs="bst__form-flex">
+              <!-- Min/Max and Predecessor/Successor -->
+              <fieldset>
+                <legend>Additional Operations</legend>
+                <input
+                  type="button"
+                  value="Get Min"
+                  class="bst__button-getMin"
+                />
+                <input
+                  type="button"
+                  value="Get Max"
+                  class="bst__button-getMax"
+                />
+
+                <input type="text" id="predecessor" placeholder="Key" />
+                <input
+                  type="button"
+                  value="Get Predecessor"
+                  class="bst__button-predecessor"
+                />
+
+                <input type="text" id="successor" placeholder="Key" />
+                <input
+                  type="button"
+                  value="Get Successor"
+                  class="bst__button-successor"
+                />
+              </fieldset>
+            </div>
+          </form>
+        </div>
         <div class="bst__container"></div>
       </div>
     </main>
