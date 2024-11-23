@@ -47,6 +47,11 @@ main {
   &__form {
     width: 70vw;
     font-size: 0.8rem;
+
+    legend {
+      display: block;
+      margin-bottom: -0.2rem;
+    }
     input[type="button"] {
       background-color: $primary-color;
       color: white;
