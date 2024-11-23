@@ -22,13 +22,27 @@ const convertDataToD3 = (node) => {
 // Binary Search Tree instance
 const bst = new BinarySearchTree();
 const randomNumber = new Set();
-while (randomNumber.size < 50) {
+while (randomNumber.size < 100) {
   randomNumber.add(Math.floor(Math.random() * 100) + 1);
 }
 
 randomNumber.forEach((number) => bst.insert(number));
-
-/* bst.insert(5);
+/* bst.insert(50);
+bst.insert(30);
+bst.insert(70);
+bst.insert(20);
+bst.insert(40);
+bst.insert(60);
+bst.insert(80);
+bst.insert(10);
+bst.insert(25);
+bst.insert(35);
+bst.insert(45);
+bst.insert(55);
+bst.insert(65);
+bst.insert(75);
+bst.insert(90);
+bst.insert(5);
 bst.insert(15);
 bst.insert(27);
 bst.insert(38);
@@ -59,22 +73,7 @@ bst.insert(56);
 bst.insert(61);
 bst.insert(64);
 bst.insert(67);
-bst.insert(71);
-bst.insert(50);
-bst.insert(30);
-bst.insert(70);
-bst.insert(20);
-bst.insert(40);
-bst.insert(60);
-bst.insert(80);
-bst.insert(10);
-bst.insert(25);
-bst.insert(35);
-bst.insert(45);
-bst.insert(55);
-bst.insert(65);
-bst.insert(75);
-bst.insert(90); */
+bst.insert(71); */
 // Convert BST to hierarchy data
 const data = convertDataToD3(bst.root);
 
@@ -85,11 +84,14 @@ const container = d3.select(".bst__container");
 const containerElement = document.querySelector(".bst__container");
 
 const root = d3.hierarchy(data);
-const dx = 100;
-const dy = 100;
+const dx = 130;
+const dy = 150;
 
 // tree layout
 const tree = d3.tree().nodeSize([dx, dy]);
+// separation
+tree.separation(() => 1); // equal spacing between sibling
+
 tree(root);
 
 let x0 = Infinity;
@@ -102,6 +104,16 @@ root.each((d) => {
   if (d.x < x0) x0 = d.x;
   if (d.y > y1) y1 = d.y;
   if (d.y < y0) y0 = d.y;
+
+  d.y = d.depth * 150; // adjust vertical spacing
+
+  // offset single child node to place accordingly
+
+  if (d.children && d.children.length === 1) {
+    const child = d.children[0];
+    const offset = 20; // can be tweaked to adjust position
+    child.x = d.x + (child.data.name < d.data.name ? -offset : offset);
+  }
 });
 const width = Math.max(containerElement.clientWidth, x1 - x0 + dx * 2);
 const height = y1 - y0 + dy * 2;
@@ -111,9 +123,9 @@ const svg = container
   .append("svg")
   .attr("width", "100%")
   .attr("height", "100%")
-  .attr("viewBox", [-dx + x0, -dy + y0, width, height])
-  .attr("preserveAspectRatio", "xMidYMid meet");
-
+  .attr("viewBox", [-dx + x0, -dy + y0, width, height * 1.2])
+  .attr("preserveAspectRatio", "xMidYMid meet")
+  .attr("style", "max-width: 100%; height: auto;");
 // Ensure horizontal scrolling is possible
 container.style("overflow-x", "auto");
 
@@ -121,15 +133,15 @@ svg
   .append("g")
   .attr("fill", "none")
   .attr("stroke", "#555")
-  .attr("stroke-opacity", 0.4)
-  .attr("stroke-width", 1.5)
+  .attr("stroke-opacity", 1)
+  .attr("stroke-width", 2)
   .selectAll()
   .data(root.links())
   .join("path")
   .attr(
     "d",
     d3
-      .linkHorizontal()
+      .link(d3.curveLinear)
       .x((d) => d.x)
       .y((d) => d.y)
   );
@@ -137,13 +149,13 @@ svg
 const node = svg
   .append("g")
   .attr("stroke-linejoin", "round")
-  .attr("stroke-width", 3)
+  .attr("stroke-width", 2)
   .selectAll()
   .data(root.descendants())
   .join("g")
   .attr("transform", (d) => `translate(${d.x},${d.y})`);
 
-node.append("circle").attr("fill", "#999").attr("r", 30);
+node.append("circle").attr("fill", "#ccc").attr("r", 30);
 
 node
   .append("text")
