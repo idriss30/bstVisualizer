@@ -32,34 +32,37 @@
             </div> -->
 
             <!-- Group Insert/Delete/Find -->
-            <div class="bst__form-flex">
-              <fieldset>
-                <legend>Insert/Delete/Find</legend>
-
-                <input type="text" id="insert" />
-                <input
-                  type="button"
-                  value="Insert"
-                  class="bst__button-insert"
-                />
-
-                <input type="text" id="delete" />
-                <input
-                  type="button"
-                  value="Delete"
-                  class="bst__button-delete"
-                />
-
-                <label for="find">Find:</label>
-                <input type="text" id="find" />
-                <input type="button" value="Find" class="bst__button-find" />
-              </fieldset>
-            </div>
+            <fieldset>
+              <legend>Insert/Delete/Find</legend>
+              <div class="form__flex">
+                <div>
+                  <input type="text" id="insert" />
+                  <input
+                    type="button"
+                    value="Insert"
+                    class="bst__button-insert"
+                  />
+                </div>
+                <div>
+                  <input type="text" id="delete" />
+                  <input
+                    type="button"
+                    value="Delete"
+                    class="bst__button-delete"
+                  />
+                </div>
+                <div>
+                  <input type="text" id="find" />
+                  <input type="button" value="Find" class="bst__button-find" />
+                </div>
+              </div>
+            </fieldset>
 
             <!-- Traversal -->
-            <div class="bst__form-flex">
-              <fieldset>
-                <legend>Traversal</legend>
+
+            <fieldset>
+              <legend>Traversal</legend>
+              <div class="" form__flex>
                 <input
                   type="button"
                   value="PostOrder"
@@ -75,12 +78,13 @@
                   value="InOrder"
                   class="bst__button-inorder"
                 />
-              </fieldset>
-            </div>
-            <div classs="bst__form-flex">
-              <!-- Min/Max and Predecessor/Successor -->
-              <fieldset>
-                <legend>Additional Operations</legend>
+              </div>
+            </fieldset>
+
+            <!-- Min/Max and Predecessor/Successor -->
+            <fieldset>
+              <legend>Additional Operations</legend>
+              <div class="form__flex">
                 <input
                   type="button"
                   value="Get Min"
@@ -91,22 +95,24 @@
                   value="Get Max"
                   class="bst__button-getMax"
                 />
-
-                <input type="text" id="predecessor" placeholder="Key" />
-                <input
-                  type="button"
-                  value="Get Predecessor"
-                  class="bst__button-predecessor"
-                />
-
-                <input type="text" id="successor" placeholder="Key" />
-                <input
-                  type="button"
-                  value="Get Successor"
-                  class="bst__button-successor"
-                />
-              </fieldset>
-            </div>
+                <div>
+                  <input type="text" id="predecessor" placeholder="Key" />
+                  <input
+                    type="button"
+                    value="Get Predecessor"
+                    class="bst__button-predecessor"
+                  />
+                </div>
+                <div>
+                  <input type="text" id="successor" placeholder="Key" />
+                  <input
+                    type="button"
+                    value="Get Successor"
+                    class="bst__button-successor"
+                  />
+                </div>
+              </div>
+            </fieldset>
           </form>
         </div>
         <div class="bst__container"></div>
