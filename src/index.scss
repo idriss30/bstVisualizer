@@ -26,7 +26,7 @@ main {
     color: $header-color;
     font-family: "Lato", sans-serif;
     text-align: center;
-    padding: 2rem 0;
+    padding: 2rem 0 1rem 0;
     @media only screen and (max-width: 859px) {
       font-size: 1.7rem;
     }
@@ -93,15 +93,14 @@ main {
 }
 .bst__container {
   width: 70vw;
-  height: 80vh;
-  min-height: 70vh;
+  height: 60vh;
+  min-height: 60vh;
   border: 1px solid #ccc;
   resize: both;
   overflow-x: auto;
   overflow-y: auto;
   margin: 0 0 2rem 0;
   scroll-behavior: smooth;
-  //display: flex;
 
   svg {
     margin: 10px auto;
