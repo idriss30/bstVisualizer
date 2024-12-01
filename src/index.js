@@ -7,6 +7,7 @@ const convertDataToD3 = (node) => {
   if (!node) return null;
   const treeNode = {
     name: node.key,
+    id: node.key, // using the node.key as an id to avoid render only the new node everytime the tree changes
     children: [],
   };
 
@@ -19,85 +20,138 @@ const convertDataToD3 = (node) => {
 
   return treeNode;
 };
+
+// dom selection form object
+
+const formObject = {
+  insertField: document.getElementById("insert"),
+  insertButton: document.querySelector(".bst__button-insert"),
+  deleteField: document.getElementById("delete"),
+  deleteButton: document.querySelector(".bst__button-delete"),
+  findField: document.getElementById("find"),
+  findButton: document.querySelector(".bst__button-find"),
+  postOrderButton: document.querySelector(".bst__button-postorder"),
+  preOrderButton: document.querySelector(".bst__button-preorder"),
+  inOrderButton: document.querySelector(".bst__button-inorder"),
+  getMinButton: document.querySelector(".bst__button-getMin"),
+  getMaxButton: document.querySelector(".bst"),
+  predecessorField: document.getElementById("predecessor"),
+  predecessorButton: document.querySelector(".bst__button-predecessor"),
+  successorField: document.getElementById("successor"),
+  successorButton: document.querySelector(".bst__button-successor"),
+};
+
+const treeLayout = {
+  x0: Infinity,
+  x1: -Infinity,
+  y0: Infinity,
+  y1: -Infinity,
+  dx: 200, //dx and dy will influence vertical and horizontal distance of nodes
+  dy: 200,
+  d3containerSelection: d3.select(".bst__container"), // select d3 container
+  containerSelection: document.querySelector(".bst__container"), // using it to get container size
+};
+
+const renderTree = (data) => {
+  const root = d3.hierarchy(data); // setting up the hierarchy
+  const tree = d3.tree(root).nodeSize([treeLayout.dx, treeLayout.dy]);
+
+  // node separation
+  tree.separation(() => 4); // spacing between sibling;
+  // iterate through each node and find min and max values for x and y
+  root.each((d) => {
+    if (d.x > treeLayout.x1) treeLayout.x1 = d.x;
+    if (d.x < treeLayout.x0) treeLayout.x0 = d.x;
+    if (d.y > treeLayout.y1) treeLayout.y1 = d.y;
+    if (d.y < treeLayout.y0) treeLayout.y0 = d.y;
+    console.log(d.x, d.y);
+
+    d.y = d.depth * 150; // adjust vertical spacing
+
+    // offset single child node to place accordingly
+
+    if (d.children && d.children.length === 1) {
+      const child = d.children[0];
+      const offset = 50; // can be tweaked to adjust position
+      child.x = d.x + (child.data.name < d.data.name ? -offset : offset);
+    }
+  });
+  // defining tree layout width and height based of values of x and y
+  treeLayout.width = Math.max(
+    // width will be defined based of the size of container or size of the tree
+    treeLayout.containerSelection.getBoundingClientRect().width,
+    treeLayout.x1 - treeLayout.x0 + treeLayout.dx * 2
+  );
+  treeLayout.height = treeLayout.y1 - treeLayout.y0 + treeLayout.dy * 2; // top point, lower point, y axis * 2
+  return root;
+};
+
+// will need a switch between red/black and regular
 // Binary Search Tree instance
 const bst = new BinarySearchTree();
-const randomNumber = new Set();
-while (randomNumber.size < 100) {
-  randomNumber.add(Math.floor(Math.random() * 100) + 1);
-}
 
-randomNumber.forEach((number) => bst.insert(number));
-/* bst.insert(50);
-bst.insert(30);
-bst.insert(70);
+const createSvg = (placeholder) => {
+  treeLayout.svg = placeholder
+    .append(svg)
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr("viewBox", [
+      -treeLayout.dx + treeLayout.x0,
+      -treeLayout.dy + treeLayout.y0,
+      treeLayout.width,
+      treeLayout.height * 1.4,
+    ])
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .style("border", "2px solid blue");
+};
+
+const insertNodeToTree = (key) => {
+  bst.insert(key);
+  if (bst.length === 1) {
+    createSvg(treeLayout.d3containerSelection);
+  }
+  const data = convertDataToD3(bst.root);
+  const root = renderTree(data);
+  root.find();
+};
+
+// insert listener
+formObject.insertButton.addEventListener("click", () => {
+  let insertFieldValue = formObject.insertField.value;
+  insertFieldValue = parseInt(insertFieldValue);
+  if (!insertFieldValue || typeof insertFieldValue !== "number") {
+    return null;
+  }
+});
+
+/* bst.insert(10);
 bst.insert(20);
-bst.insert(40);
-bst.insert(60);
-bst.insert(80);
-bst.insert(10);
-bst.insert(25);
-bst.insert(35);
-bst.insert(45);
-bst.insert(55);
-bst.insert(65);
-bst.insert(75);
-bst.insert(90);
-bst.insert(5);
-bst.insert(15);
-bst.insert(27);
-bst.insert(38);
-bst.insert(42);
-bst.insert(48);
-bst.insert(52);
-bst.insert(57);
-bst.insert(62);
-bst.insert(68);
-bst.insert(72);
-bst.insert(78);
-bst.insert(85);
-bst.insert(95);
-bst.insert(3);
-bst.insert(8);
-bst.insert(12);
-bst.insert(18);
-bst.insert(22);
-bst.insert(28);
-bst.insert(32);
-bst.insert(37);
-bst.insert(41);
-bst.insert(43);
-bst.insert(47);
-bst.insert(51);
-bst.insert(53);
-bst.insert(56);
-bst.insert(61);
-bst.insert(64);
-bst.insert(67);
-bst.insert(71); */
-// Convert BST to hierarchy data
+bst.insert(7);
+bst.insert(6);
+bst.insert(23);
+bst.insert(74);
 const data = convertDataToD3(bst.root);
 
-// Select container and get dimensions
-const container = d3.select(".bst__container");
-
-// getting container size
-const containerElement = document.querySelector(".bst__container");
-
+let dx = null;
+let dy = null;
+if (data) {
+  dx = 200;
+  dy = 40;
+}
 const root = d3.hierarchy(data);
-const dx = 130;
-const dy = 150;
 
 // tree layout
 const tree = d3.tree().nodeSize([dx, dy]);
 // separation
-tree.separation(() => 1); // equal spacing between sibling
+tree.separation(() => 4); // equal spacing between sibling
 
 tree(root);
 
-let x0 = Infinity;
-let x1 = -x0;
+let x0 = Infinity; // number greater than any positive number
+let x1 = -x0; //- infinity
 let y0 = Infinity;
-let y1 = -y0;
+let y1 = -y0; // -infinity
+
 // iterate through each node and find min and max values for x and y
 root.each((d) => {
   if (d.x > x1) x1 = d.x;
@@ -111,7 +165,7 @@ root.each((d) => {
 
   if (d.children && d.children.length === 1) {
     const child = d.children[0];
-    const offset = 20; // can be tweaked to adjust position
+    const offset = 50; // can be tweaked to adjust position
     child.x = d.x + (child.data.name < d.data.name ? -offset : offset);
   }
 });
@@ -123,7 +177,7 @@ const svg = container
   .append("svg")
   .attr("width", "100%")
   .attr("height", "100%")
-  .attr("viewBox", [-dx + x0, -dy + y0, width, height * 1.2])
+  .attr("viewBox", [-dx + x0, -dy + y0, width, height * 1.4])
   .attr("preserveAspectRatio", "xMidYMid meet")
   .attr("style", "max-width: 100%; height: auto;");
 // Ensure horizontal scrolling is possible
@@ -155,11 +209,14 @@ const node = svg
   .join("g")
   .attr("transform", (d) => `translate(${d.x},${d.y})`);
 
-node.append("circle").attr("fill", "#ccc").attr("r", 30);
+node.append("circle").attr("fill", "#ccc").attr("r", 50);
 
 node
   .append("text")
   .attr("dy", ".35em")
   .attr("text-anchor", "middle")
-  .style("font-size", "30px")
+  .style("font-size", "40px")
   .text((d) => d.data.name);
+
+console.log(data);
+ */
