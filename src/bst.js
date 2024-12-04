@@ -37,7 +37,7 @@ class BinarySearchTree {
       // find where to place node;
       const nodeParent = this.findNewNodeParent(this.root, key);
       // return false when duplicate value
-      if (nodeParent == null) return false;
+      if (!nodeParent) return false;
       // place node based on key value
       const newNode = new TreeNode(key);
       if (key > nodeParent.key) {
