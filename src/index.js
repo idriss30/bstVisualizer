@@ -2,12 +2,12 @@ import { BinarySearchTree } from "./bst";
 import "./index.scss";
 import * as d3 from "d3";
 
-// function to convert node input to d3 format recursively
+// function to convert regualar bst to d3 tree format recursively
 const convertDataToD3 = (node) => {
   if (!node) return null;
   const treeNode = {
     name: node.key,
-    id: node.key, // using the node.key as an id to avoid render only the new node everytime the tree changes
+    id: node.key, // using the node.key as an id to  render only the new node everytime the tree changes
     children: [],
   };
 
@@ -40,39 +40,75 @@ const formObject = {
   successorField: document.getElementById("successor"),
   successorButton: document.querySelector(".bst__button-successor"),
 };
+// define tree info
+const treeData = {};
+treeData.dx = 250; // horizontal spacing for node at same level
+treeData.dy = 150; // vertival spacing between nodes
+treeData.x0 = Infinity;
+treeData.x1 = -treeData.x0;
+treeData.y0 = Infinity;
+treeData.y1 = -treeData.y0;
+treeData.container = document.querySelector(".bst__container"); // will be used to calculate width and height
+treeData.d3Container = d3.select(".bst__container");
+treeData.width = treeData.container.getBoundingClientRect().width; // initial width of svg before any data
+treeData.height = treeData.container.getBoundingClientRect().height; // initial height before any data
 
-// Binary Search Tree instance
-const bst = new BinarySearchTree();
+const updateTreeLayout = (rootNode) => {
+  // iterate through each node and find min and max values for x and y
+  rootNode.each((d) => {
+    if (d.x > treeData.x1) treeData.x1 = d.x;
+    if (d.x < treeData.x0) treeData.x0 = d.x;
+    if (d.y > treeData.y1) treeData.y1 = d.y;
+    if (d.y < treeData.y0) treeData.y0 = d.y;
 
-// define height and width
-const treeContainer = document.querySelector(".bst__container");
-const containerSvg = d3.select(".bst__container");
+    d.y = d.depth * 150; // adjust vertical spacing
 
-const width = treeContainer.getBoundingClientRect().width - 100;
-const height = treeContainer.getBoundingClientRect().height - 100;
+    // offset single child node to place accordingly
 
-const svg = containerSvg
+    if (d.children && d.children.length === 1) {
+      const child = d.children[0];
+      const offset = 90; // can be tweaked to adjust position
+      child.x = d.x + (child.data.name < d.data.name ? -offset : offset);
+    }
+  });
+  // adjust width and height
+  treeData.width = Math.max(
+    treeData.width,
+    treeData.x1 - treeData.x0 + treeData.dx * 2
+  );
+  treeData.height = treeData.y1 - treeData.y0 + treeData.dy * 2;
+};
+
+// appending svg container to dom
+treeData.svg = treeData.d3Container
   .append("svg")
-  .attr("height", "95%")
-  .attr("width", "95%")
-  .attr("viewBox", [-width / 2, -height / 2, width * 1.5, height * 1.5])
-  .style("border", "2px solid blue");
+  .attr("height", "100%")
+  .attr("width", "100%")
+  .attr("viewBox", [
+    -treeData.width / 2,
+    -treeData.height / 2,
+    treeData.width * 1.5,
+    treeData.height * 1.5,
+  ])
+  .style("border", "2px solid blue"); // to be removed
+// append a group for node so they could scale collectively
 
-//append group for node and links so they scale collectively
-const nodeGroup = svg.append("g");
-const appendNode = (nodeInfo) => {
-  const node = nodeGroup
+treeData.nodeGroup = treeData.svg.append("g");
+
+const createNode = (node) => {
+  const myNode = treeData.nodeGroup
+    .append("g")
     .selectAll(".node")
-    .data(nodeInfo)
+    .data(node)
     .enter()
     .append("g")
     .attr("class", "node")
-    .attr("id", nodeInfo.data.id);
-
-  // add circle
-  node.append("circle").attr("r", 30).attr("fill", "#623cea");
-  // add text
-  node
+    .attr("id", `node${node.data.id}`)
+    .attr("transform", (d) => `translate(${d.x}, ${d.y})`);
+  // draw circle
+  myNode.append("circle").attr("r", 40);
+  // write text
+  myNode
     .append("text")
     .attr("dy", ".35em")
     .attr("text-anchor", "middle")
@@ -81,8 +117,11 @@ const appendNode = (nodeInfo) => {
     .text((node) => node.data.name);
 };
 
+// Binary Search Tree instance
+const bst = new BinarySearchTree();
+
 // create link and append it before drawing node
-const appendLink = (source, target) => {};
+const createLink = (nodeParent, nodeChild) => {};
 // insert function
 const insertNode = (key) => {
   const isKeyValid = bst.insert(key);
@@ -90,18 +129,20 @@ const insertNode = (key) => {
 
   const treeNode = convertDataToD3(bst.root);
   const root = d3.hierarchy(treeNode);
-  const tree = d3.tree(root).nodeSize([150, 100]);
+  const tree = d3.tree().nodeSize([treeData.dx, treeData.dy]);
+  tree(root);
   tree.separation(() => 4);
-  if (bst.length == 1) {
-    appendNode(root);
+  updateTreeLayout(root);
+  if (bst.length === 1) {
+    createNode(root);
   } else {
-    // find node parent
-    const currentNode = root.find((node) => node.data.name === key);
-    const parentNode = currentNode.parent;
+    // get parent
+    const addedNode = root.find((node) => node.data.name === key);
+    const addedNodeParent = addedNode?.parent;
+    // create links
 
-    // create links here
-    appendLink(parentNode, currentNode);
-    // then append node with link using source and target
+    // append node
+    createNode(addedNode);
   }
 };
 
@@ -124,7 +165,8 @@ bst.insert(6);
 bst.insert(23);
 bst.insert(74);
 const data = convertDataToD3(bst.root);
-
+const containerElement = document.querySelector(".bst__container");
+const container = d3.select(".bst__container");
 let dx = null;
 let dy = null;
 if (data) {
