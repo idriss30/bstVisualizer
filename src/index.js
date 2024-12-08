@@ -77,6 +77,12 @@ const updateTreeLayout = (rootNode) => {
     treeData.x1 - treeData.x0 + treeData.dx * 2
   );
   treeData.height = treeData.y1 - treeData.y0 + treeData.dy * 2;
+  treeData.svg.attr("viewBox", [
+    -treeData.dx + treeData.x0,
+    -treeData.dy + treeData.y0,
+    treeData.width,
+    treeData.height * 1.4,
+  ]);
 };
 
 // appending svg container to dom
@@ -90,9 +96,8 @@ treeData.svg = treeData.d3Container
     treeData.width * 1.5,
     treeData.height * 1.5,
   ])
-  .style("border", "2px solid blue"); // to be removed
+  .attr("style", "max-width: 100%; height: auto;");
 // append a group for node so they could scale collectively
-
 treeData.nodeGroup = treeData.svg.append("g");
 
 const createNode = (node) => {
@@ -121,7 +126,27 @@ const createNode = (node) => {
 const bst = new BinarySearchTree();
 
 // create link and append it before drawing node
-const createLink = (nodeParent, nodeChild) => {};
+const createLink = (nodeParent, nodeChild) => {
+  const link = treeData.nodeGroup
+    .append("g")
+    .selectAll(".link")
+    .data(nodeParent.links())
+    .enter()
+    .append("path")
+    .attr("class", "link")
+    .attr("fill", "none")
+    .attr("stroke", "#555")
+    .attr("stroke-opacity", 1)
+    .attr("stroke-width", 2)
+    .attr("id", `node${nodeParent.data.id}`)
+    .attr(
+      "d",
+      d3
+        .link(d3.curveLinear)
+        .x((d) => d.x)
+        .y((d) => d.y)
+    );
+};
 // insert function
 const insertNode = (key) => {
   const isKeyValid = bst.insert(key);
@@ -140,7 +165,7 @@ const insertNode = (key) => {
     const addedNode = root.find((node) => node.data.name === key);
     const addedNodeParent = addedNode?.parent;
     // create links
-
+    createLink(addedNodeParent, addedNode);
     // append node
     createNode(addedNode);
   }
@@ -157,101 +182,3 @@ formObject.insertButton.addEventListener("click", () => {
   // clean form
   formObject.insertField.value = "";
 });
-
-/* bst.insert(10);
-bst.insert(20);
-bst.insert(7);
-bst.insert(6);
-bst.insert(23);
-bst.insert(74);
-const data = convertDataToD3(bst.root);
-const containerElement = document.querySelector(".bst__container");
-const container = d3.select(".bst__container");
-let dx = null;
-let dy = null;
-if (data) {
-  dx = 200;
-  dy = 40;
-}
-const root = d3.hierarchy(data);
-
-// tree layout
-const tree = d3.tree().nodeSize([dx, dy]);
-// separation
-tree.separation(() => 4); // equal spacing between sibling
-
-tree(root);
-
-let x0 = Infinity; // number greater than any positive number
-let x1 = -x0; //- infinity
-let y0 = Infinity;
-let y1 = -y0; // -infinity
-
-// iterate through each node and find min and max values for x and y
-root.each((d) => {
-  if (d.x > x1) x1 = d.x;
-  if (d.x < x0) x0 = d.x;
-  if (d.y > y1) y1 = d.y;
-  if (d.y < y0) y0 = d.y;
-
-  d.y = d.depth * 150; // adjust vertical spacing
-
-  // offset single child node to place accordingly
-
-  if (d.children && d.children.length === 1) {
-    const child = d.children[0];
-    const offset = 50; // can be tweaked to adjust position
-    child.x = d.x + (child.data.name < d.data.name ? -offset : offset);
-  }
-});
-const width = Math.max(containerElement.clientWidth, x1 - x0 + dx * 2);
-const height = y1 - y0 + dy * 2;
-
-// Create the SVG container
-const svg = container
-  .append("svg")
-  .attr("width", "100%")
-  .attr("height", "100%")
-  .attr("viewBox", [-dx + x0, -dy + y0, width, height * 1.4])
-  .attr("preserveAspectRatio", "xMidYMid meet")
-  .attr("style", "max-width: 100%; height: auto;");
-// Ensure horizontal scrolling is possible
-container.style("overflow-x", "auto");
-
-svg
-  .append("g")
-  .attr("fill", "none")
-  .attr("stroke", "#555")
-  .attr("stroke-opacity", 1)
-  .attr("stroke-width", 2)
-  .selectAll()
-  .data(root.links())
-  .join("path")
-  .attr(
-    "d",
-    d3
-      .link(d3.curveLinear)
-      .x((d) => d.x)
-      .y((d) => d.y)
-  );
-
-const node = svg
-  .append("g")
-  .attr("stroke-linejoin", "round")
-  .attr("stroke-width", 2)
-  .selectAll()
-  .data(root.descendants())
-  .join("g")
-  .attr("transform", (d) => `translate(${d.x},${d.y})`);
-
-node.append("circle").attr("fill", "#ccc").attr("r", 50);
-
-node
-  .append("text")
-  .attr("dy", ".35em")
-  .attr("text-anchor", "middle")
-  .style("font-size", "40px")
-  .text((d) => d.data.name);
-
-console.log(data);
- */
