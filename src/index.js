@@ -42,7 +42,7 @@ const formObject = {
 };
 // define tree info
 const treeData = {};
-treeData.dx = 250; // horizontal spacing for node at same level
+treeData.dx = 150; // horizontal spacing for node at same level
 treeData.dy = 150; // vertival spacing between nodes
 treeData.x0 = Infinity;
 treeData.x1 = -treeData.x0;
@@ -61,14 +61,14 @@ const updateTreeLayout = (rootNode) => {
     if (d.y > treeData.y1) treeData.y1 = d.y;
     if (d.y < treeData.y0) treeData.y0 = d.y;
 
-    d.y = d.depth * 150; // adjust vertical spacing
+    d.y = d.depth * 100; // adjust vertical spacing
 
     // offset single child node to place accordingly
 
-    if (d.children && d.children.length === 1) {
+    if (d.children && d.children.length >= 1) {
       const child = d.children[0];
-      const offset = 90; // can be tweaked to adjust position
-      child.x = d.x + (child.data.name < d.data.name ? -offset : offset);
+      const offset = 40; //to adjust position of single child node
+      child.x = child.x + (child.data.name < d.data.name ? -offset : offset);
     }
   });
   // adjust width and height
@@ -95,80 +95,71 @@ treeData.svg = treeData.d3Container
     -treeData.height / 2,
     treeData.width * 1.5,
     treeData.height * 1.5,
-  ])
-  .attr("style", "max-width: 100%; height: auto;");
-// append a group for node so they could scale collectively
-treeData.nodeGroup = treeData.svg.append("g");
+  ]);
 
-const createNode = (node) => {
-  const myNode = treeData.nodeGroup
-    .append("g")
-    .selectAll(".node")
-    .data(node)
-    .enter()
-    .append("g")
-    .attr("class", "node")
-    .attr("id", `node${node.data.id}`)
-    .attr("transform", (d) => `translate(${d.x}, ${d.y})`);
-  // draw circle
-  myNode.append("circle").attr("r", 40);
-  // write text
-  myNode
-    .append("text")
-    .attr("dy", ".35em")
-    .attr("text-anchor", "middle")
-    .style("font-size", "16px")
-    .attr("fill", "white")
-    .text((node) => node.data.name);
+// append global group
+treeData.itemsGroup = treeData.svg.append("g");
+// append a group for node so they could scale collectively
+treeData.nodeGroup = treeData.itemsGroup
+  .append("g")
+  .attr("class", "node__group");
+
+const createTree = (data) => {
+  // create the hierarchy
+  const root = d3.hierarchy(data);
+  // create the tree
+  const tree = d3.tree().nodeSize([treeData.dx, treeData.dy]);
+  tree(root);
+  return [root, tree];
 };
 
 // Binary Search Tree instance
 const bst = new BinarySearchTree();
+const createNode = (root, key) => {
+  const nodeSelection = treeData.nodeGroup
+    .selectAll(".node")
+    .data(root.descendants(), (d) => d.data.id); // Using id as unique identifier
 
-// create link and append it before drawing node
-const createLink = (nodeParent, nodeChild) => {
-  const link = treeData.nodeGroup
-    .append("g")
-    .selectAll(".link")
-    .data(nodeParent.links())
+  // create new nodes for new data
+  const nodeEnter = nodeSelection
     .enter()
-    .append("path")
-    .attr("class", "link")
-    .attr("fill", "none")
-    .attr("stroke", "#555")
-    .attr("stroke-opacity", 1)
-    .attr("stroke-width", 2)
-    .attr("id", `node${nodeParent.data.id}`)
-    .attr(
-      "d",
-      d3
-        .link(d3.curveLinear)
-        .x((d) => d.x)
-        .y((d) => d.y)
-    );
+    .append("g")
+    .attr("class", "node")
+    .attr("id", `node-${key}`);
+
+  // Add circle and text elements to the new nodes
+  nodeEnter.append("circle").attr("r", 30).attr("stroke-width", 3);
+
+  nodeEnter
+    .append("text")
+    .attr("dy", ".35em")
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .attr("fill", "white")
+    .text((d) => d.data.name);
+
+  // Update selection: update positions of existing nodes
+  nodeSelection
+    .merge(nodeEnter) // Combine enter and update selections
+    .attr("transform", (d) => `translate(${d.x},${d.y})`);
+
+  // Exit selection: remove nodes that are no longer present
+  nodeSelection.exit().remove();
 };
+// create link and append it before drawing node
+const createLink = (nodeParent, nodeChild) => {};
+
 // insert function
 const insertNode = (key) => {
   const isKeyValid = bst.insert(key);
   if (!isKeyValid) return null;
+  treeData.data = convertDataToD3(bst.root);
+  // regenerate layout
+  const [root, tree] = createTree(treeData.data);
 
-  const treeNode = convertDataToD3(bst.root);
-  const root = d3.hierarchy(treeNode);
-  const tree = d3.tree().nodeSize([treeData.dx, treeData.dy]);
-  tree(root);
-  tree.separation(() => 4);
-  updateTreeLayout(root);
-  if (bst.length === 1) {
-    createNode(root);
-  } else {
-    // get parent
-    const addedNode = root.find((node) => node.data.name === key);
-    const addedNodeParent = addedNode?.parent;
-    // create links
-    createLink(addedNodeParent, addedNode);
-    // append node
-    createNode(addedNode);
-  }
+  const currentNode = root.find((node) => node.data.name === key);
+
+  createNode(root, key);
 };
 
 // insert listener
