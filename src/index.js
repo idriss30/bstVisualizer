@@ -115,36 +115,31 @@ const createTree = (data) => {
 
 // Binary Search Tree instance
 const bst = new BinarySearchTree();
+// create node function
 const createNode = (root, key) => {
   const nodeSelection = treeData.nodeGroup
     .selectAll(".node")
-    .data(root.descendants(), (d) => d.data.id); // Using id as unique identifier
+    .data(root.descendants(), (d) => d.data.id) // Using id as unique identifier
+    .join(
+      (enter) =>
+        enter
+          .append("g")
+          .attr("class", "node")
+          .attr("id", `node-${key}`)
+          .attr("transform", (d) => `translate(${d.x},${d.y})`),
 
-  // create new nodes for new data
-  const nodeEnter = nodeSelection
-    .enter()
-    .append("g")
-    .attr("class", "node")
-    .attr("id", `node-${key}`);
+      (update) => update.attr("transform", (d) => `translate(${d.x},${d.y})`), // update translate position
+      (exit) => exit.remove()
+    );
+  nodeSelection.append("circle").attr("r", 30).attr("stroke-width", 3);
 
-  // Add circle and text elements to the new nodes
-  nodeEnter.append("circle").attr("r", 30).attr("stroke-width", 3);
-
-  nodeEnter
+  nodeSelection
     .append("text")
     .attr("dy", ".35em")
     .attr("text-anchor", "middle")
     .style("font-size", "14px")
     .attr("fill", "white")
     .text((d) => d.data.name);
-
-  // Update selection: update positions of existing nodes
-  nodeSelection
-    .merge(nodeEnter) // Combine enter and update selections
-    .attr("transform", (d) => `translate(${d.x},${d.y})`);
-
-  // Exit selection: remove nodes that are no longer present
-  nodeSelection.exit().remove();
 };
 // create link and append it before drawing node
 const createLink = (nodeParent, nodeChild) => {};
@@ -156,10 +151,14 @@ const insertNode = (key) => {
   treeData.data = convertDataToD3(bst.root);
   // regenerate layout
   const [root, tree] = createTree(treeData.data);
-
-  const currentNode = root.find((node) => node.data.name === key);
-
   createNode(root, key);
+
+  if (bst.length > 1) {
+    // find currentNode for source and target
+    const currentNode = root.find((node) => node.data.name === key);
+    // create the link
+    createLink(currentNode.parent, currentNode);
+  }
 };
 
 // insert listener
