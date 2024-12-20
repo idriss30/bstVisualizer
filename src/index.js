@@ -61,7 +61,7 @@ const updateTreeLayout = (rootNode) => {
     if (d.y > treeData.y1) treeData.y1 = d.y;
     if (d.y < treeData.y0) treeData.y0 = d.y;
 
-    d.y = d.depth * 100; // adjust vertical spacing
+    d.y = d.depth * 150; // adjust vertical spacing
 
     // offset single child node to place accordingly
 
@@ -99,6 +99,10 @@ treeData.svg = treeData.d3Container
 
 // append global group
 treeData.itemsGroup = treeData.svg.append("g");
+// append g for a link group
+treeData.linksGroup = treeData.itemsGroup
+  .append("g")
+  .attr("class", "links_group");
 // append a group for node so they could scale collectively
 treeData.nodeGroup = treeData.itemsGroup
   .append("g")
@@ -110,7 +114,7 @@ const createTree = (data) => {
   // create the tree
   const tree = d3.tree().nodeSize([treeData.dx, treeData.dy]);
   tree(root);
-  return [root, tree];
+  return root;
 };
 
 // Binary Search Tree instance
@@ -131,18 +135,63 @@ const createNode = (root, key) => {
       (update) => update.attr("transform", (d) => `translate(${d.x},${d.y})`), // update translate position
       (exit) => exit.remove()
     );
-  nodeSelection.append("circle").attr("r", 30).attr("stroke-width", 3);
+  nodeSelection.append("circle").attr("r", 40).attr("stroke-width", 3);
 
   nodeSelection
     .append("text")
     .attr("dy", ".35em")
     .attr("text-anchor", "middle")
-    .style("font-size", "14px")
+    .style("font-size", "25px")
     .attr("fill", "white")
     .text((d) => d.data.name);
 };
 // create link and append it before drawing node
-const createLink = (nodeParent, nodeChild) => {};
+const createLink = (rootNode) => {
+  const linksSelection = treeData.linksGroup
+    .selectAll(".link")
+    .data(rootNode.links(), (d) => d.target.id);
+
+  linksSelection.join(
+    (enter) =>
+      enter
+        .append("path")
+        .attr("class", "link")
+        .attr("id", (d) => `link-${d.source.id}-to-${d.target.id}`)
+        .attr(
+          "d",
+          d3
+            .link(d3.curveLinear)
+            .x((d) => d.x)
+            .y((d) => d.y)
+        ),
+    (update) =>
+      update.attr(
+        "d",
+        d3
+          .link(d3.curveLinear)
+          .x((d) => d.x)
+          .y((d) => d.y)
+      ),
+    (exit) => exit.remove()
+  );
+
+  linksSelection
+    .attr("fill", "none")
+    .attr("stroke", "#555")
+    .attr("stroke-opacity", 1)
+    .attr("stroke-width", 1);
+};
+
+// animate insertion to provide a good visual of the items
+const animateInsertion = (root, key) => {
+  const currentNode = root.find((node) => node.data.name === key);
+
+  const path = [];
+
+  for (let i = currentNode.ancestors().length - 1; i > 0; i--) {
+    path.push(currentNode.ancestors()[i].data.name);
+  }
+};
 
 // insert function
 const insertNode = (key) => {
@@ -150,14 +199,13 @@ const insertNode = (key) => {
   if (!isKeyValid) return null;
   treeData.data = convertDataToD3(bst.root);
   // regenerate layout
-  const [root, tree] = createTree(treeData.data);
+  const root = createTree(treeData.data);
+  updateTreeLayout(root);
+  animateInsertion(root, key);
   createNode(root, key);
-
   if (bst.length > 1) {
-    // find currentNode for source and target
-    const currentNode = root.find((node) => node.data.name === key);
     // create the link
-    createLink(currentNode.parent, currentNode);
+    createLink(root);
   }
 };
 
