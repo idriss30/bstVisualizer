@@ -135,7 +135,12 @@ const createNode = (root, key) => {
       (update) => update.attr("transform", (d) => `translate(${d.x},${d.y})`), // update translate position
       (exit) => exit.remove()
     );
-  nodeSelection.append("circle").attr("r", 40).attr("stroke-width", 3);
+  nodeSelection
+    .append("circle")
+    .attr("r", 40)
+    .attr("stroke-width", 3)
+    .attr("stroke", "#623cea")
+    .attr("fill", "#704eec");
 
   nodeSelection
     .append("text")
@@ -182,15 +187,49 @@ const createLink = (rootNode) => {
     .attr("stroke-width", 1);
 };
 
-// animate insertion to provide a good visual of the items
-const animateInsertion = (root, key) => {
+// traverse to node
+const traverseToNode = (root, key) => {
+  // get the last inserted node in the hierarchy
   const currentNode = root.find((node) => node.data.name === key);
-
+  // create a path from root to node
   const path = [];
 
-  for (let i = currentNode.ancestors().length - 1; i > 0; i--) {
-    path.push(currentNode.ancestors()[i].data.name);
+  // append each node up until root backward to allow traversal
+  for (let i = currentNode.ancestors().length - 1; i >= 0; i--) {
+    path.push(currentNode.ancestors()[i]);
   }
+  return path;
+};
+const animateInsertion = (path, process, root, key) => {
+  // take a path and move to the new inserted node
+  const tempNode = treeData.nodeGroup
+    .append("circle")
+    .attr("r", 40)
+    .attr("fill", "#fa8334")
+    .attr("stroke", "black")
+    .attr("cx", path[0].x)
+    .attr("cy", path[0].y);
+  let currentIndex = 0;
+  path.forEach((node) => {
+    tempNode
+      .transition()
+      .duration(800)
+      .ease(d3.easeLinear)
+      .attr("cx", node.x)
+      .attr("cy", node.y);
+
+    currentIndex++;
+    if (currentIndex === path.length - 1) {
+      setTimeout(() => {
+        tempNode.remove();
+        if (process == "insert") {
+          // create the link
+          createLink(root);
+          createNode(root, key);
+        }
+      }, 1000);
+    }
+  });
 };
 
 // insert function
@@ -201,11 +240,13 @@ const insertNode = (key) => {
   // regenerate layout
   const root = createTree(treeData.data);
   updateTreeLayout(root);
-  animateInsertion(root, key);
-  createNode(root, key);
+  const path = traverseToNode(root, key);
+
   if (bst.length > 1) {
-    // create the link
-    createLink(root);
+    // animate path
+    animateInsertion(path, "insert", root, key);
+  } else {
+    createNode(root, key);
   }
 };
 
