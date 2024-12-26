@@ -121,35 +121,37 @@ const createTree = (data) => {
 const bst = new BinarySearchTree();
 // create node function
 const createNode = (root, key) => {
-  const nodeSelection = treeData.nodeGroup
+  treeData.nodeGroup
     .selectAll(".node")
     .data(root.descendants(), (d) => d.data.id) // Using id as unique identifier
     .join(
-      (enter) =>
-        enter
+      (enter) => {
+        const nodeEnter = enter
           .append("g")
           .attr("class", "node")
-          .attr("id", `node-${key}`)
-          .attr("transform", (d) => `translate(${d.x},${d.y})`),
+          .attr("id", (d) => `node-${d.data.id}`)
+          .attr("transform", (d) => `translate(${d.x},${d.y})`);
 
-      (update) => update.attr("transform", (d) => `translate(${d.x},${d.y})`), // update translate position
+        nodeEnter
+          .append("circle")
+          .attr("r", 40)
+          .attr("stroke-width", 3)
+          .attr("stroke", "#623cea")
+          .attr("fill", "#704eec");
+
+        nodeEnter
+          .append("text")
+          .attr("dy", ".35em")
+          .attr("text-anchor", "middle")
+          .style("font-size", "25px")
+          .attr("fill", "white")
+          .text((d) => d.data.name);
+      },
+      (update) => update.attr("transform", (d) => `translate(${d.x},${d.y})`), // update position
       (exit) => exit.remove()
     );
-  nodeSelection
-    .append("circle")
-    .attr("r", 40)
-    .attr("stroke-width", 3)
-    .attr("stroke", "#623cea")
-    .attr("fill", "#704eec");
-
-  nodeSelection
-    .append("text")
-    .attr("dy", ".35em")
-    .attr("text-anchor", "middle")
-    .style("font-size", "25px")
-    .attr("fill", "white")
-    .text((d) => d.data.name);
 };
+
 // create link and append it before drawing node
 const createLink = (rootNode) => {
   const linksSelection = treeData.linksGroup
@@ -188,47 +190,37 @@ const createLink = (rootNode) => {
 };
 
 // traverse to node
-const traverseToNode = (root, key) => {
-  // get the last inserted node in the hierarchy
-  const currentNode = root.find((node) => node.data.name === key);
-  // create a path from root to node
-  const path = [];
+const traverseToNode = (root, key, arr = []) => {
+  const myArr = [...arr];
+  if (!root) return myArr;
 
-  // append each node up until root backward to allow traversal
-  for (let i = currentNode.ancestors().length - 1; i >= 0; i--) {
-    path.push(currentNode.ancestors()[i]);
+  if (root.data.name === key) {
+    return myArr;
+  } else if (root.data.name < key) {
+    myArr.push(root.data.name); // Add the current node to the path
+    return root.children.length === 2
+      ? traverseToNode(root.children[1], key, myArr)
+      : traverseToNode(root.children[0], key, myArr);
+  } else {
+    myArr.push(root.data.name); // Add the current node to the path
+    return traverseToNode(root.children[0], key, myArr);
   }
-  return path;
 };
-const animateInsertion = (path, process, root, key) => {
-  // take a path and move to the new inserted node
-  const tempNode = treeData.nodeGroup
-    .append("circle")
-    .attr("r", 40)
-    .attr("fill", "#fa8334")
-    .attr("stroke", "black")
-    .attr("cx", path[0].x)
-    .attr("cy", path[0].y);
-  let currentIndex = 0;
-  path.forEach((node) => {
-    tempNode
-      .transition()
-      .duration(800)
-      .ease(d3.easeLinear)
-      .attr("cx", node.x)
-      .attr("cy", node.y);
 
-    currentIndex++;
-    if (currentIndex === path.length - 1) {
-      setTimeout(() => {
-        tempNode.remove();
-        if (process == "insert") {
-          // create the link
-          createLink(root);
-          createNode(root, key);
-        }
-      }, 1000);
-    }
+const animateInsertion = (root, key) => {
+  const nodesPath = traverseToNode(root, key);
+
+  nodesPath.forEach((node) => {
+    const selectCurrentNode = d3.select(`#node-${node}`);
+    console.log(selectCurrentNode);
+    /*  selectCurrentNode
+      .transition()
+      .duration(500)
+      .ease(d3.easeLinear)
+      .attr("fill", "red")
+      .transition()
+      .duration(200)
+      .attr("fill", "#704eec"); */
   });
 };
 
@@ -240,11 +232,11 @@ const insertNode = (key) => {
   // regenerate layout
   const root = createTree(treeData.data);
   updateTreeLayout(root);
-  const path = traverseToNode(root, key);
-
   if (bst.length > 1) {
     // animate path
-    animateInsertion(path, "insert", root, key);
+    animateInsertion(root, key);
+    createLink(root);
+    createNode(root, key);
   } else {
     createNode(root, key);
   }
@@ -258,6 +250,7 @@ formObject.insertButton.addEventListener("click", () => {
     return null;
   }
   insertNode(insertFieldValue);
+
   // clean form
   formObject.insertField.value = "";
 });
