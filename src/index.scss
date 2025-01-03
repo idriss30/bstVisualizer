@@ -104,7 +104,7 @@ main {
 
   svg {
     margin: 10px auto;
-    display: block;
+    overflow: auto;
   }
 
   path {
@@ -112,13 +112,8 @@ main {
     stroke-width: 3;
   }
 
-  circle {
-    fill: $header-color;
-    stroke: $primary-color; /* Use your primary color */
-  }
-
   text {
-    fill: white;
+    //fill: white;
     font-size: 16px;
   }
   svg:not(:root) {
