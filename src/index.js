@@ -197,30 +197,30 @@ const traverseToNode = (root, key, arr = []) => {
   if (root.data.name === key) {
     return myArr;
   } else if (root.data.name < key) {
-    myArr.push(root.data.name); // Add the current node to the path
+    myArr.push(root); // Add the current node to the path
     return root.children.length === 2
       ? traverseToNode(root.children[1], key, myArr)
       : traverseToNode(root.children[0], key, myArr);
   } else {
-    myArr.push(root.data.name); // Add the current node to the path
+    myArr.push(root);
+    // when key is < the node to access is always the first one
     return traverseToNode(root.children[0], key, myArr);
   }
 };
 
-const animateInsertion = (root, key) => {
+const animateInsertion = async (root, key) => {
   const nodesPath = traverseToNode(root, key);
-
-  nodesPath.forEach((node) => {
-    const selectCurrentNode = d3.select(`#node-${node}`);
-    console.log(selectCurrentNode);
-    /*  selectCurrentNode
+  nodesPath.forEach((node, index) => {
+    const currentNode = d3.select(`#node-${node.data.id}`);
+    currentNode
       .transition()
-      .duration(500)
-      .ease(d3.easeLinear)
+      .delay(index * 800) // Delay based of index to avoid a simultaneous animation
+      .select("circle")
+      .duration(1000)
       .attr("fill", "red")
       .transition()
       .duration(200)
-      .attr("fill", "#704eec"); */
+      .attr("fill", "#704eec"); // restore color
   });
 };
 
@@ -235,6 +235,7 @@ const insertNode = (key) => {
   if (bst.length > 1) {
     // animate path
     animateInsertion(root, key);
+
     createLink(root);
     createNode(root, key);
   } else {
