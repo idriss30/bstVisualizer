@@ -235,9 +235,10 @@ const insertNode = (key) => {
   if (bst.length > 1) {
     // animate path
     animateInsertion(root, key);
+    // get the result of animation before creating node
 
-    createLink(root);
-    createNode(root, key);
+    //createLink(root);
+    //createNode(root, key);
   } else {
     createNode(root, key);
   }
