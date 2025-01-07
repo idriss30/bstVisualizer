@@ -120,7 +120,7 @@ const createTree = (data) => {
 // Binary Search Tree instance
 const bst = new BinarySearchTree();
 // create node function
-const createNode = (root, key) => {
+const createNode = (root) => {
   treeData.nodeGroup
     .selectAll(".node")
     .data(root.descendants(), (d) => d.data.id) // Using id as unique identifier
@@ -208,10 +208,11 @@ const traverseToNode = (root, key, arr = []) => {
   }
 };
 
-const animateInsertion = async (root, key) => {
+const animateInsertion = (root, key) => {
   const nodesPath = traverseToNode(root, key);
+  let currentNode;
   nodesPath.forEach((node, index) => {
-    const currentNode = d3.select(`#node-${node.data.id}`);
+    currentNode = d3.select(`#node-${node.data.id}`);
     currentNode
       .transition()
       .delay(index * 800) // Delay based of index to avoid a simultaneous animation
@@ -220,7 +221,13 @@ const animateInsertion = async (root, key) => {
       .attr("fill", "red")
       .transition()
       .duration(200)
-      .attr("fill", "#704eec"); // restore color
+      .attr("fill", "#704eec") // restore color
+      .on("end", () => {
+        if (index === nodesPath.length - 1) {
+          createLink(root);
+          createNode(root);
+        }
+      });
   });
 };
 
@@ -235,10 +242,6 @@ const insertNode = (key) => {
   if (bst.length > 1) {
     // animate path
     animateInsertion(root, key);
-    // get the result of animation before creating node
-
-    //createLink(root);
-    //createNode(root, key);
   } else {
     createNode(root, key);
   }
