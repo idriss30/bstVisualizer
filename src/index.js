@@ -218,10 +218,12 @@ const animateInsertion = (root, key) => {
       .delay(index * 800) // Delay based of index to avoid a simultaneous animation
       .select("circle")
       .duration(1000)
-      .attr("fill", "red")
+      .attr("fill", "#fa8334")
+      .attr("stroke", "#fa8334")
       .transition()
-      .duration(200)
+      .duration(500)
       .attr("fill", "#704eec") // restore color
+      .attr("stroke", "#623cea")
       .on("end", () => {
         if (index === nodesPath.length - 1) {
           createLink(root);
