@@ -256,8 +256,16 @@ formObject.insertButton.addEventListener("click", () => {
   if (!insertFieldValue || typeof insertFieldValue !== "number") {
     return null;
   }
-  insertNode(insertFieldValue);
-
-  // clean form
+  const insertResult = insertNode(insertFieldValue);
+  if (insertResult === null) {
+    // select the display container and write message
+    const displayContainer = document.querySelector(".bst__results-message");
+    displayContainer.innerHTML = `Node ${insertFieldValue} already exists`;
+    // set a timeout to remove the message
+    setTimeout(() => {
+      displayContainer.innerHTML = "";
+    }, 1000);
+  }
+  // clear the input field
   formObject.insertField.value = "";
 });
