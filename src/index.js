@@ -195,6 +195,7 @@ const traverseToNode = (root, key, arr = []) => {
   if (!root) return myArr;
 
   if (root.data.name === key) {
+    myArr.push(root);
     return myArr;
   } else if (root.data.name < key) {
     myArr.push(root); // Add the current node to the path
@@ -204,7 +205,9 @@ const traverseToNode = (root, key, arr = []) => {
   } else {
     myArr.push(root);
     // when key is < the node to access is always the first one
-    return traverseToNode(root.children[0], key, myArr);
+    return root.children[0]
+      ? traverseToNode(root.children[0], key, myArr)
+      : myArr;
   }
 };
 
@@ -225,12 +228,23 @@ const animateInsertion = (root, key) => {
       .attr("fill", "#704eec") // restore color
       .attr("stroke", "#623cea")
       .on("end", () => {
-        if (index === nodesPath.length - 1) {
+        // stop at the item before the inserted node
+        if (index === nodesPath.length - 2) {
           createLink(root);
           createNode(root);
+          return;
         }
       });
   });
+};
+
+// function that displays a message and delete it after two second
+const displayMessage = (message) => {
+  const displayContainer = document.querySelector(".bst__results-message");
+  displayContainer.innerHTML = message;
+  setTimeout(() => {
+    displayContainer.innerHTML = "";
+  }, 2000);
 };
 
 // insert function
@@ -258,14 +272,23 @@ formObject.insertButton.addEventListener("click", () => {
   }
   const insertResult = insertNode(insertFieldValue);
   if (insertResult === null) {
-    // select the display container and write message
-    const displayContainer = document.querySelector(".bst__results-message");
-    displayContainer.innerHTML = `Node ${insertFieldValue} already exists`;
-    // set a timeout to remove the message
-    setTimeout(() => {
-      displayContainer.innerHTML = "";
-    }, 1000);
+    displayMessage(`Node ${insertFieldValue} already exists`);
   }
   // clear the input field
   formObject.insertField.value = "";
+});
+
+// add event listener to find button
+formObject.findButton.addEventListener("click", () => {
+  let findFielValue = formObject.findField.value;
+  findFielValue = parseInt(findFielValue);
+  if (!findFielValue || typeof findFielValue !== "number") return null;
+  if (!bst.root) return null;
+  // traverse node to check if it exists
+  const root = createTree(treeData.data);
+  const traversalArr = traverseToNode(root, findFielValue);
+  if (traversalArr.length === 0) {
+    displayMessage(`Node ${findFielValue} not found`);
+    return;
+  }
 });
