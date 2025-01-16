@@ -99,11 +99,11 @@ class BinarySearchTree {
   // when you want to delete or when you need to process children before parents
   // left then right then current
   postOrderTraversal(node) {
-    const itemsArr = (arr = []);
+    const itemsArr = [];
     const traverseTree = () => {
       if (!node || !this.length) return false;
-      this.traverseTree(node.left);
-      this.traverseTree(node.right);
+      traverseTree(node.left);
+      traverseTree(node.right);
       itemsArr.push(node);
     };
     traverseTree(node);
