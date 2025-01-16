@@ -100,7 +100,7 @@ class BinarySearchTree {
   // left then right then current
   postOrderTraversal(node) {
     const itemsArr = [];
-    const traverseTree = () => {
+    const traverseTree = (node) => {
       if (!node || !this.length) return false;
       traverseTree(node.left);
       traverseTree(node.right);
