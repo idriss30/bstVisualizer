@@ -114,6 +114,7 @@ const createTree = (data) => {
   // create the tree
   const tree = d3.tree().nodeSize([treeData.dx, treeData.dy]);
   tree(root);
+  treeData.root = root; // adding root to the data object to avoid creating it everytime.
   return root;
 };
 
@@ -143,7 +144,7 @@ const createNode = (root) => {
           .append("text")
           .attr("dy", ".35em")
           .attr("text-anchor", "middle")
-          .style("font-size", "25px")
+          .style("font-size", "35px")
           .attr("fill", "white")
           .text((d) => d.data.name);
       },
@@ -277,14 +278,58 @@ formObject.insertButton.addEventListener("click", () => {
     displayMessage(`Node ${insertFieldValue} already exists`);
   }
 });
-// node Finding function using d3
+// node Finding function using d3.js
+const findNodeAndReturnPath = (key) => {
+  // using path on the root
+  const isNode = treeData.root.find((node) => node.data.name === key);
+  if (isNode) {
+    return [...isNode.ancestors()].reverse(); // reverse the elements to start from top to bottom
+  }
+  return false;
+};
+const blinkingNodeAnimation = (currentNode) => {
+  currentNode
+    .transition()
+    .duration(300)
+    .select("circle")
+    .attr("fill", "#fa8334")
+    .attr("stroke", "#fa8334")
+    .attr("r", 30)
+    .transition()
+    .duration(300)
+    .attr("r", 40)
+    .attr("fill", "#704eec")
+    .attr("stroke", "#623cea")
+    .transition()
+    .duration(300)
+    .attr("fill", "#fa8334")
+    .attr("stroke", "#fa8334")
+    .attr("r", 35)
+    .transition()
+    .duration(300)
+    .attr("r", 40)
+    .attr("fill", "#704eec")
+    .attr("stroke", "#623cea")
+    .transition()
+    .duration(300)
+    .attr("fill", "#fa8334")
+    .attr("stroke", "#fa8334")
+    .attr("r", 30)
+    .transition()
+    .duration(300)
+    .attr("r", 40)
+    .attr("fill", "#704eec")
+    .attr("stroke", "#623cea");
+};
 
 const nodeFindingAnimation = (nodesArray) => {
   let currentNode;
   // creating callBack to pass after animation
   const callBack = (currentNode, index, path) => {
     if (index === path.length - 1) {
-      console.log(currentNode);
+      // creating blinking animation to last found node
+      blinkingNodeAnimation(currentNode);
+      displayMessage(`${currentNode.attr("id")} is currently blinking`);
     }
   };
 
@@ -298,19 +343,20 @@ const nodeFindingAnimation = (nodesArray) => {
 };
 // add event listener to find button
 formObject.findButton.addEventListener("click", () => {
-  let findFielValue = formObject.findField.value;
-  findFielValue = parseInt(findFielValue);
-  if (!findFielValue || typeof findFielValue !== "number") return null;
-  if (!bst.root) return null;
-  // traverse node to check if it exists
-  const root = createTree(treeData.data);
-  const traversalArr = traverseToNode(root, findFielValue);
-  formObject.findField.value = "";
-  if (traversalArr.length === 0) {
-    displayMessage(`Node ${findFielValue} not found`);
+  let findFieldValue = formObject.findField.value;
+  findFieldValue = parseInt(findFieldValue);
+  formObject.findField.value = ""; // clean up form
+  if (!findFieldValue || typeof findFieldValue !== "number") return null;
+  if (!bst.root) {
+    displayMessage("nothing to look up");
+  }
+  const path = findNodeAndReturnPath(findFieldValue);
+  if (!path) {
+    displayMessage(`node ${findFieldValue} is not in the tree`);
     return;
   }
-  nodeFindingAnimation(traversalArr);
+  // animate traversal when node is found
+  nodeFindingAnimation(path);
 });
 
 const drawLine = (container, x1, y1, x2, y2) => {
@@ -346,3 +392,17 @@ const createMarkerAndArrow = (container) => {
 
   return defs;
 };
+
+// preOrder traversal
+
+const preOrderTraversal = () => {
+  const preOrderArr = bst.preOrderTraversal(bst.root);
+  return preOrderArr;
+};
+
+formObject.preOrderButton.addEventListener("click", () => {
+  const traversalItems = preOrderTraversal();
+  traversalItems.forEach((node, index) => {
+    // select currentNode
+  });
+});
