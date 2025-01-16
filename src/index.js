@@ -266,16 +266,18 @@ const insertNode = (key) => {
 formObject.insertButton.addEventListener("click", () => {
   let insertFieldValue = formObject.insertField.value;
   insertFieldValue = parseInt(insertFieldValue);
+  // clear the input field
+  formObject.insertField.value = "";
   if (!insertFieldValue || typeof insertFieldValue !== "number") {
+    displayMessage("Please enter a valid number");
     return null;
   }
   const insertResult = insertNode(insertFieldValue);
   if (insertResult === null) {
     displayMessage(`Node ${insertFieldValue} already exists`);
   }
-  // clear the input field
-  formObject.insertField.value = "";
 });
+// node Finding function using d3
 
 const nodeFindingAnimation = (nodesArray) => {
   let currentNode;
