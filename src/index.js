@@ -191,50 +191,49 @@ const createLink = (rootNode) => {
 
 // traverse to node
 const traverseToNode = (root, key, arr = []) => {
-  const myArr = [...arr];
-  if (!root) return myArr;
-
-  if (root.data.name === key) {
-    myArr.push(root);
-    return myArr;
-  } else if (root.data.name < key) {
-    myArr.push(root); // Add the current node to the path
-    return root.children.length === 2
-      ? traverseToNode(root.children[1], key, myArr)
-      : traverseToNode(root.children[0], key, myArr);
-  } else {
-    myArr.push(root);
-    // when key is < the node to access is always the first one
-    return root.children[0]
-      ? traverseToNode(root.children[0], key, myArr)
-      : myArr;
+  if (key === root.data.name) return arr; // base case because node will always be found
+  arr.push(root); // push the currentNode;
+  if (key < root.data.name && root.children[0]) {
+    return traverseToNode(root.children[0], key, arr);
   }
+  if (key > root.data.name && root.children[1]) {
+    return traverseToNode(root.children[1], key, arr);
+  } else {
+    return traverseToNode(root.children[0], key, arr);
+  }
+};
+
+const nodeAnimation = (currentNode, index, callBack) => {
+  currentNode
+    .transition()
+    .delay(index * 800) // Delay based of index to avoid a simultaneous animation
+    .select("circle")
+    .duration(1000)
+    .attr("fill", "#fa8334")
+    .attr("stroke", "#fa8334")
+    .transition()
+    .duration(500)
+    .attr("fill", "#704eec") // restore color
+    .attr("stroke", "#623cea")
+    .on("end", callBack);
 };
 
 const animateInsertion = (root, key) => {
   const nodesPath = traverseToNode(root, key);
   let currentNode;
+  const callBack = (index, path) => {
+    if (index === path.length - 1) {
+      // stopping at element before the last one to prevent animation of the last inserted node
+      createLink(root);
+      createNode(root);
+      return;
+    }
+  };
   nodesPath.forEach((node, index) => {
     currentNode = d3.select(`#node-${node.data.id}`);
-    currentNode
-      .transition()
-      .delay(index * 800) // Delay based of index to avoid a simultaneous animation
-      .select("circle")
-      .duration(1000)
-      .attr("fill", "#fa8334")
-      .attr("stroke", "#fa8334")
-      .transition()
-      .duration(500)
-      .attr("fill", "#704eec") // restore color
-      .attr("stroke", "#623cea")
-      .on("end", () => {
-        // stop at the item before the inserted node
-        if (index === nodesPath.length - 2) {
-          createLink(root);
-          createNode(root);
-          return;
-        }
-      });
+    nodeAnimation(currentNode, index, () => {
+      callBack(index, nodesPath);
+    });
   });
 };
 
@@ -278,6 +277,23 @@ formObject.insertButton.addEventListener("click", () => {
   formObject.insertField.value = "";
 });
 
+const nodeFindingAnimation = (nodesArray) => {
+  let currentNode;
+  // creating callBack to pass after animation
+  const callBack = (currentNode, index, path) => {
+    if (index === path.length - 1) {
+      console.log(currentNode);
+    }
+  };
+
+  nodesArray.forEach((node, index) => {
+    // select current node
+    currentNode = d3.select(`#node-${node.data.id}`);
+    nodeAnimation(currentNode, index, () => {
+      callBack(currentNode, index, nodesArray);
+    });
+  });
+};
 // add event listener to find button
 formObject.findButton.addEventListener("click", () => {
   let findFielValue = formObject.findField.value;
@@ -287,8 +303,44 @@ formObject.findButton.addEventListener("click", () => {
   // traverse node to check if it exists
   const root = createTree(treeData.data);
   const traversalArr = traverseToNode(root, findFielValue);
+  formObject.findField.value = "";
   if (traversalArr.length === 0) {
     displayMessage(`Node ${findFielValue} not found`);
     return;
   }
+  nodeFindingAnimation(traversalArr);
 });
+
+const drawLine = (container, x1, y1, x2, y2) => {
+  const line = container
+    .append("line")
+    .attr("id", "tempLine")
+    .attr("x1", x1)
+    .attr("x2", x2)
+    .attr("y1", y1)
+    .attr("y2", y2)
+    .attr("stroke-width", 5)
+    .attr("stroke", "#fa8334")
+    .attr("marker-end", "url(#arrow)");
+
+  return line;
+};
+
+const createMarkerAndArrow = (container) => {
+  const defs = container.append("defs").attr("id", "tempArrowContainer");
+  const marker = defs
+    .append("marker")
+    .attr("id", "arrow")
+    .attr("markerWidth", 10)
+    .attr("markerHeight", 10)
+    .attr("refX", 10)
+    .attr("refY", 5)
+    .attr("orient", "auto");
+
+  marker
+    .append("path")
+    .attr("d", "M0 0 L20 0  L0 10 z")
+    .attr("fill", "#fa8334 ");
+
+  return defs;
+};
