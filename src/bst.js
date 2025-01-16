@@ -67,32 +67,47 @@ class BinarySearchTree {
   // ideal for printing node in ascending order
 
   inOrderTraversal(node) {
-    if (!node || !this.length) return false;
-    this.inOrderTraversal(node.left);
-    // do something with the currentNode;
-    console.log(node.key);
-    this.inOrderTraversal(node.right);
+    const inOrderArr = [];
+    const traverseTree = (node) => {
+      if (!node || !this.length) return false;
+      traverseTree(node.left);
+      // push node to array
+      inOrderArr.push(node);
+      traverseTree(node.right);
+    };
+    traverseTree(node);
+    return inOrderArr;
   }
 
   // pre order traversal
   // ideal for creating a copy of the tree
   // node are visited from currentNode to left to right
 
-  preOrderTraversal(node) {
-    if (!node || !this.length) return false;
-    console.log(node.key);
-    this.preOrderTraversal(node.left);
-    this.preOrderTraversal(node.right);
+  preOrderTraversal(beginningNode) {
+    const itemsArr = [];
+    const traverse = (node) => {
+      if (!node || !this.length) return false;
+      itemsArr.push(node);
+      traverse(node.left);
+      traverse(node.right);
+    };
+    traverse(beginningNode);
+    return itemsArr;
   }
 
   // postOrderTraversal
   // when you want to delete or when you need to process children before parents
   // left then right then current
   postOrderTraversal(node) {
-    if (!node || !this.length) return false;
-    this.postOrderTraversal(node.left);
-    this.postOrderTraversal(node.right);
-    console.log(node.key);
+    const itemsArr = (arr = []);
+    const traverseTree = () => {
+      if (!node || !this.length) return false;
+      this.traverseTree(node.left);
+      this.traverseTree(node.right);
+      itemsArr.push(node);
+    };
+    traverseTree(node);
+    return itemsArr;
   }
 
   //findSuccessor
