@@ -51,17 +51,6 @@ class BinarySearchTree {
     return true;
   }
 
-  getNode(key, startingNode) {
-    // return false when tree is empty or startingNode is empty
-    if (!key || !startingNode || !this.length) return false;
-    // move left if key is less
-    if (key < startingNode.key) return this.getNode(key, startingNode.left);
-    // move right if key is greater
-    if (key > startingNode.key) return this.getNode(key, startingNode.right);
-
-    return true;
-  }
-
   getMin(node) {
     if (!node || !this.root) return false;
     if (node.left) return this.getMin(node.left);
