@@ -95,27 +95,25 @@ main {
     color: $accent-color;
     font-weight: bold;
   }
-
-  &__results-delete {
-    display: none;
-    background-color: $primary-color;
-    color: white;
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.2rem;
-    min-width: 100px;
-    cursor: pointer;
-    border: none;
-    transition: background-color 0.3s ease;
-
-    &:hover {
-      background-color: rgba($primary-color, 0.8);
+  &__results-array {
+    text-align: center;
+    span {
+      font-size: 1rem;
+      font-weight: bold;
+      color: $accent-color;
     }
+  }
+
+  &__results-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
   }
 }
 .bst__container {
   width: 70vw;
-  height: 60vh;
-  min-height: 60vh;
+  height: 50vh;
+  min-height: 50vh;
   border: 1px solid #ccc;
   resize: both;
   overflow-x: auto;
