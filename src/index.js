@@ -39,6 +39,8 @@ const formObject = {
   predecessorButton: document.querySelector(".bst__button-predecessor"),
   successorField: document.getElementById("successor"),
   successorButton: document.querySelector(".bst__button-successor"),
+  resultArray: document.querySelector(".bst__results-array"),
+  resultTitle: document.querySelector(".bst__results-title"),
 };
 // define tree info
 const treeData = {};
@@ -207,7 +209,7 @@ const traverseToNode = (root, key, arr = []) => {
 const nodeAnimation = (currentNode, index, callBack) => {
   currentNode
     .transition()
-    .delay(index * 800) // Delay based of index to avoid a simultaneous animation
+    .delay(index * 1000) // Delay based of index to avoid a simultaneous animation
     .select("circle")
     .duration(1000)
     .attr("fill", "#fa8334")
@@ -269,6 +271,9 @@ formObject.insertButton.addEventListener("click", () => {
   insertFieldValue = parseInt(insertFieldValue);
   // clear the input field
   formObject.insertField.value = "";
+  // clear any previous array from traversal
+  formObject.resultArray.innerHTML = "";
+  formObject.resultTitle.innerText = "";
   if (!insertFieldValue || typeof insertFieldValue !== "number") {
     displayMessage("Please enter a valid number");
     return null;
@@ -392,17 +397,93 @@ const createMarkerAndArrow = (container) => {
 
   return defs;
 };
-
+// traversal call back
+const traversalCallBack = (node, index, length) => {
+  let span = document.createElement("span");
+  span.setAttribute("class", `nodeSpan`);
+  let myString;
+  if (index === 0) {
+    myString = document.createTextNode(`[ ${node.key}, `);
+  } else if (index != length - 1) {
+    myString = document.createTextNode(`${node.key}, `);
+  } else {
+    myString = document.createTextNode(`${node.key} ]`);
+  }
+  span.appendChild(myString);
+  formObject.resultArray.appendChild(span);
+};
 // preOrder traversal
 
 const preOrderTraversal = () => {
+  if (!bst.root) {
+    displayMessage("no tree to traverse");
+  }
   const preOrderArr = bst.preOrderTraversal(bst.root);
   return preOrderArr;
 };
 
 formObject.preOrderButton.addEventListener("click", () => {
+  // clean the input first
+  formObject.resultArray.innerHTML = "";
+  formObject.resultTitle.innerText = "Pre-order result";
   const traversalItems = preOrderTraversal();
+  if (!traversalItems || traversalItems.length === 0) return;
+  let currentNode;
   traversalItems.forEach((node, index) => {
     // select currentNode
+    currentNode = d3.select(`#node-${node.key}`);
+    nodeAnimation(currentNode, index, () => {
+      traversalCallBack(node, index, traversalItems.length);
+    });
+  });
+});
+
+// post order traversal
+const postOrderTraversal = () => {
+  if (!bst.root) {
+    displayMessage("no tree to traverse");
+  }
+  const postOrderArr = bst.postOrderTraversal(bst.root);
+  return postOrderArr;
+};
+
+formObject.postOrderButton.addEventListener("click", () => {
+  // clean the input first
+  formObject.resultArray.innerHTML = "";
+  formObject.resultTitle.innerText = "Post-order result";
+  const traversalItems = postOrderTraversal();
+  if (!traversalItems || traversalItems.length === 0) return;
+  let currentNode;
+  traversalItems.forEach((node, index) => {
+    // select currentNode
+    currentNode = d3.select(`#node-${node.key}`);
+    nodeAnimation(currentNode, index, () => {
+      traversalCallBack(node, index, traversalItems.length);
+    });
+  });
+});
+
+// inOrder Traversal
+const inOrderTraversal = () => {
+  if (!bst.root) {
+    displayMessage("no tree to traverse");
+  }
+  const inOrderArr = bst.inOrderTraversal(bst.root);
+  return inOrderArr;
+};
+formObject.inOrderButton.addEventListener("click", () => {
+  // clean the input first
+  formObject.resultArray.innerHTML = "";
+  formObject.resultTitle.innerText = "In-order result";
+
+  const traversalItems = inOrderTraversal();
+  if (!traversalItems || traversalItems.length === 0) return;
+  let currentNode;
+  traversalItems.forEach((node, index) => {
+    // select currentNode
+    currentNode = d3.select(`#node-${node.key}`);
+    nodeAnimation(currentNode, index, () => {
+      traversalCallBack(node, index, traversalItems.length);
+    });
   });
 });
