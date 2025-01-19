@@ -34,7 +34,7 @@ const formObject = {
   preOrderButton: document.querySelector(".bst__button-preorder"),
   inOrderButton: document.querySelector(".bst__button-inorder"),
   getMinButton: document.querySelector(".bst__button-getMin"),
-  getMaxButton: document.querySelector(".bst"),
+  getMaxButton: document.querySelector(".bst__button-getMax"),
   predecessorField: document.getElementById("predecessor"),
   predecessorButton: document.querySelector(".bst__button-predecessor"),
   successorField: document.getElementById("successor"),
@@ -278,6 +278,11 @@ formObject.insertButton.addEventListener("click", () => {
     displayMessage("Please enter a valid number");
     return null;
   }
+  // avoid number greater or equal to 1000
+  if (insertFieldValue >= 1000) {
+    displayMessage("no number greater or equal to 1000 for interface feature ");
+    return;
+  }
   const insertResult = insertNode(insertFieldValue);
   if (insertResult === null) {
     displayMessage(`Node ${insertFieldValue} already exists`);
@@ -295,33 +300,33 @@ const findNodeAndReturnPath = (key) => {
 const blinkingNodeAnimation = (currentNode) => {
   currentNode
     .transition()
-    .duration(300)
+    .duration(500)
     .select("circle")
     .attr("fill", "#fa8334")
     .attr("stroke", "#fa8334")
     .attr("r", 30)
     .transition()
-    .duration(300)
+    .duration(500)
     .attr("r", 40)
     .attr("fill", "#704eec")
     .attr("stroke", "#623cea")
     .transition()
-    .duration(300)
+    .duration(500)
     .attr("fill", "#fa8334")
     .attr("stroke", "#fa8334")
     .attr("r", 35)
     .transition()
-    .duration(300)
+    .duration(500)
     .attr("r", 40)
     .attr("fill", "#704eec")
     .attr("stroke", "#623cea")
     .transition()
-    .duration(300)
+    .duration(500)
     .attr("fill", "#fa8334")
     .attr("stroke", "#fa8334")
     .attr("r", 30)
     .transition()
-    .duration(300)
+    .duration(500)
     .attr("r", 40)
     .attr("fill", "#704eec")
     .attr("stroke", "#623cea");
@@ -486,4 +491,86 @@ formObject.inOrderButton.addEventListener("click", () => {
       traversalCallBack(node, index, traversalItems.length);
     });
   });
+});
+
+// get min feature
+const getMinAndBlinkWhenFound = () => {
+  const min = bst.getMin(bst.root);
+  if (!min) {
+    displayMessage("No minimum was found");
+    return;
+  }
+  const selectMin = d3.select(`#node-${min.key}`);
+  blinkingNodeAnimation(selectMin);
+  displayMessage(`Minimum ${min.key} is blinking`);
+};
+formObject.getMinButton.addEventListener("click", () => {
+  getMinAndBlinkWhenFound();
+});
+
+// get max feature
+const getMaxAndBlinkWhenFound = () => {
+  const max = bst.getMax(bst.root);
+  if (!max) {
+    displayMessage("No maximum was found");
+    return;
+  }
+  const maxSelection = d3.select(`#node-${max.key}`);
+  blinkingNodeAnimation(maxSelection);
+  displayMessage(`Maximum ${max.key} is blinking`);
+};
+
+formObject.getMaxButton.addEventListener("click", () => {
+  getMaxAndBlinkWhenFound();
+});
+
+//  get predecessor
+const getPredecessor = (key, startingNode) => {
+  const predecessor = bst.getPredecessor(key, startingNode);
+  console.log(predecessor);
+  if (!predecessor) {
+    displayMessage("predecessor was not found");
+    return;
+  }
+  const selectPredecessor = d3.select(`#node-${predecessor}`);
+  blinkingNodeAnimation(selectPredecessor);
+  displayMessage(`${selectPredecessor.attr("id")} is currently blinking)`);
+};
+
+formObject.predecessorButton.addEventListener("click", () => {
+  let userInputValue = formObject.predecessorField.value;
+  userInputValue = parseInt(userInputValue);
+  // clean form
+  formObject.predecessorField.value = "";
+  if (!userInputValue || typeof userInputValue != "number") {
+    displayMessage("Please enter a valid number");
+    return null;
+  }
+  getPredecessor(userInputValue, bst.root);
+  displayMessage("predecessor is blinking");
+});
+
+// get Successor
+const getSuccessor = (key, startingNode) => {
+  const successor = bst.getSuccessor(key, startingNode);
+  console.log(successor);
+  if (!successor) {
+    displayMessage("successor was not found");
+    return;
+  }
+  const selectSuccessor = d3.select(`#node-${successor}`);
+  blinkingNodeAnimation(selectSuccessor);
+  displayMessage(`${selectSuccessor.attr("id")} is currently blinking)`);
+};
+
+formObject.successorButton.addEventListener("click", () => {
+  let userInputValue = formObject.successorField.value;
+  userInputValue = parseInt(userInputValue);
+  formObject.successorField.value = "";
+  if (!userInputValue || typeof userInputValue != "number") {
+    displayMessage("Please enter a valid number");
+    return null;
+  }
+  getSuccessor(userInputValue, bst.root);
+  displayMessage("successor is blinking");
 });
