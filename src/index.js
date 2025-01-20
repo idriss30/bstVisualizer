@@ -547,13 +547,12 @@ formObject.predecessorButton.addEventListener("click", () => {
     return null;
   }
   getPredecessor(userInputValue, bst.root);
-  displayMessage("predecessor is blinking");
 });
 
 // get Successor
 const getSuccessor = (key, startingNode) => {
   const successor = bst.getSuccessor(key, startingNode);
-  console.log(successor);
+
   if (!successor) {
     displayMessage("successor was not found");
     return;
@@ -572,5 +571,4 @@ formObject.successorButton.addEventListener("click", () => {
     return null;
   }
   getSuccessor(userInputValue, bst.root);
-  displayMessage("successor is blinking");
 });
