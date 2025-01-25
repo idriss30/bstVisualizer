@@ -114,53 +114,44 @@ class BinarySearchTree {
   // node that comes right after key in an in order traversal
   // smaller key value that's greater than current key
 
-  getSuccessor(key, startNode, parent = null) {
-    if (
-      !startNode ||
-      !key ||
-      !this.length ||
-      (key == this.root.key && !this.root.right)
-    ) {
-      return parent.key;
-    }
-
-    if (startNode.key == key && startNode.right) {
-      // if node has a right successor is the right;
-
-      return startNode.right.key;
-    }
-    if (startNode.key == key && !startNode.right) {
-      // if righNode is not present return the parent's key
-
-      return parent.key;
-    }
-
-    if (key > startNode.key) {
-      return this.getSuccessor(key, startNode.right, startNode);
+  getSuccessor(key, startingNode, successor = null) {
+    if (!startingNode) return successor ? successor.key : null;
+    if (key > startingNode.key) {
+      // successor might be in right subtree
+      return this.getSuccessor(key, startingNode.right, successor);
+    } else if (key < startingNode.key) {
+      // the successor might be currentNode
+      let successor = startingNode;
+      return this.getSuccessor(key, startingNode.left, successor);
     } else {
-      return this.getSuccessor(key, startNode.left, startNode);
+      // traverse right subtree when node key is equal to key
+      if (startingNode.right) {
+        return this.getMin(startingNode.right).key;
+      }
+      // return successor if it stored
+      return successor ? successor.key : null;
     }
   }
 
   // predecessor
   // items who come before key in an inOrder traversal
 
-  getPredecessor(key, startingNode) {
-    if (
-      !startingNode ||
-      !key ||
-      !this.length ||
-      (key == this.root.key && !this.root.left)
-    ) {
-      return null;
-    }
-    if (key == startingNode.key && startingNode.left) {
-      return startingNode.left.key;
-    }
+  getPredecessor(key, startingNode, predecessor) {
+    if (!startingNode) return predecessor ? predecessor.key : null;
     if (key < startingNode.key) {
-      return this.getPredecessor(key, startingNode.left);
+      // predecessor might be in left subtree
+      return this.getPredecessor(key, startingNode.left, predecessor);
+    } else if (key > startingNode.key) {
+      // the predecessor might be currentNode
+      let predecessor = startingNode;
+      return this.getPredecessor(key, startingNode.right, predecessor);
     } else {
-      return this.getPredecessor(key, startingNode.left);
+      // traverse left subtree when node key is equal to key
+      if (startingNode.left) {
+        return this.getMax(startingNode.left).key;
+      }
+      // return predecessor if it stored
+      return predecessor ? predecessor.key : null;
     }
   }
 
