@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="binary search tree visualization" />
+    <title>Binary Search Tree Visualization</title>
+  </head>
+  <body>
+    <header>
+      <nav></nav>
+    </header>
+    <main>
+      <h1>Binary Search Tree Visualization, Powered by D3.js</h1>
+      <div class="bst">
+        <div class="bst__commands">
+          <!-- <p>
+            Use the form below to perform operations. Only positive integers up
+            to 1000 are allowed. You can toggle between a regular binary tree or
+            a balanced red black tree
+          </p> -->
+          <form class="bst__form">
+            <!--          <div>
+              <fieldset>
+                <legend>/Regular bst/ red black tree</legend>
+                <label for="tree-select">Choose Tree Type:</label>
+                <select id="tree-select">
+                  <option value="bst">Regular BST</option>
+                  <option value="rbt">Red-Black Tree</option>
+                </select>
+              </fieldset>
+            </div> -->
+
+            <!-- Group Insert/Delete/Find -->
+            <fieldset>
+              <legend>Insert/Delete/Find</legend>
+              <div class="form__flex">
+                <div>
+                  <input type="text" id="insert" />
+                  <input
+                    type="button"
+                    value="Insert"
+                    class="bst__button-insert"
+                  />
+                </div>
+                <div>
+                  <input type="text" id="delete" />
+                  <input
+                    type="button"
+                    value="Delete"
+                    class="bst__button-delete"
+                  />
+                </div>
+                <div>
+                  <input type="text" id="find" />
+                  <input type="button" value="Find" class="bst__button-find" />
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Traversal -->
+
+            <fieldset>
+              <legend>Traversal</legend>
+              <div class="" form__flex>
+                <input
+                  type="button"
+                  value="PostOrder"
+                  class="bst__button-postorder"
+                />
+                <input
+                  type="button"
+                  value="PreOrder"
+                  class="bst__button-preorder"
+                />
+                <input
+                  type="button"
+                  value="InOrder"
+                  class="bst__button-inorder"
+                />
+              </div>
+            </fieldset>
+
+            <!-- Min/Max and Predecessor/Successor -->
+            <fieldset>
+              <legend>Additional Operations</legend>
+              <div class="form__flex">
+                <input
+                  type="button"
+                  value="Get Min"
+                  class="bst__button-getMin"
+                />
+                <input
+                  type="button"
+                  value="Get Max"
+                  class="bst__button-getMax"
+                />
+                <div>
+                  <input type="text" id="predecessor" placeholder="Key" />
+                  <input
+                    type="button"
+                    value="Get Predecessor"
+                    class="bst__button-predecessor"
+                  />
+                </div>
+                <div>
+                  <input type="text" id="successor" placeholder="Key" />
+                  <input
+                    type="button"
+                    value="Get Successor"
+                    class="bst__button-successor"
+                  />
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+        <div class="bst__container"></div>
+        <div class="bst__results__display">
+          <div class="bst__results">
+            <div class="bst__results-message"></div>
+            <p class="bst__results-title"></p>
+            <div class="bst__results-array"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
