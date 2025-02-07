@@ -557,6 +557,7 @@ const getSuccessor = (key, startingNode) => {
     displayMessage("successor was not found");
     return;
   }
+
   const selectSuccessor = d3.select(`#node-${successor}`);
   blinkingNodeAnimation(selectSuccessor);
   displayMessage(`${selectSuccessor.attr("id")} is currently blinking)`);
@@ -571,4 +572,18 @@ formObject.successorButton.addEventListener("click", () => {
     return null;
   }
   getSuccessor(userInputValue, bst.root);
+});
+
+// delete button listener
+formObject.deleteButton.addEventListener("click", () => {
+  let deleteKey = formObject.deleteField.value;
+  deleteKey = parseInt(deleteKey);
+  // clean form
+  formObject.deleteField.value = "";
+  if (!deleteKey || typeof deleteKey != "number") {
+    displayMessage("Enter a valid key");
+    return;
+  }
+  const deleteReturn = bst.delete(deleteKey);
+  console.log(deleteReturn);
 });
