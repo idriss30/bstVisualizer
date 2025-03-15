@@ -532,7 +532,7 @@ const getPredecessor = (key, startingNode) => {
     displayMessage("predecessor was not found");
     return;
   }
-  const selectPredecessor = d3.select(`#node-${predecessor}`);
+  const selectPredecessor = d3.select(`#node-${predecessor.key}`);
   blinkingNodeAnimation(selectPredecessor);
   displayMessage(`${selectPredecessor.attr("id")} is currently blinking)`);
 };
@@ -558,7 +558,7 @@ const getSuccessor = (key, startingNode) => {
     return;
   }
 
-  const selectSuccessor = d3.select(`#node-${successor}`);
+  const selectSuccessor = d3.select(`#node-${successor.key}`);
   blinkingNodeAnimation(selectSuccessor);
   displayMessage(`${selectSuccessor.attr("id")} is currently blinking)`);
 };
