@@ -113,23 +113,25 @@ class BinarySearchTree {
   //findSuccessor
   // node that comes right after key in an in order traversal
   // smaller key value that's greater than current key
-
   getSuccessor(key, startingNode, successor = null) {
-    if (!startingNode) return successor ? successor.key : null;
-    if (key > startingNode.key) {
-      // successor might be in right subtree
+    if (!startingNode) return null;
+    if (key < startingNode.key) {
+      // The current node could be the successor; explore the left subtree
+      return this.getSuccessor(key, startingNode.left, startingNode);
+    } else if (key > startingNode.key) {
+      // The successor must be in the right subtree
       return this.getSuccessor(key, startingNode.right, successor);
-    } else if (key < startingNode.key) {
-      // the successor might be currentNode
-      let successor = startingNode;
-      return this.getSuccessor(key, startingNode.left, successor);
-    } else {
-      // traverse right subtree when node key is equal to key
+    } else if (key === startingNode.key) {
+      // If the key matches, check the right subtree for an immediate successor
       if (startingNode.right) {
-        return this.getMin(startingNode.right).key;
+        let temp = startingNode.right;
+        while (temp.left) {
+          temp = temp.left; // Find the smallest key in the right subtree
+        }
+        return temp;
       }
-      // return successor if it stored
-      return successor ? successor.key : null;
+      // If no right subtree, the successor is already stored in `successor`
+      return successor;
     }
   }
 
@@ -137,7 +139,7 @@ class BinarySearchTree {
   // items who come before key in an inOrder traversal
 
   getPredecessor(key, startingNode, predecessor) {
-    if (!startingNode) return predecessor ? predecessor.key : null;
+    if (!startingNode) return null;
     if (key < startingNode.key) {
       // predecessor might be in left subtree
       return this.getPredecessor(key, startingNode.left, predecessor);
@@ -145,132 +147,138 @@ class BinarySearchTree {
       // the predecessor might be currentNode
       let predecessor = startingNode;
       return this.getPredecessor(key, startingNode.right, predecessor);
-    } else {
+    } else if (key === startingNode.key) {
       // traverse left subtree when node key is equal to key
       if (startingNode.left) {
-        return this.getMax(startingNode.left).key;
+        return this.getMax(startingNode.left);
       }
       // return predecessor if it stored
-      return predecessor ? predecessor.key : null;
+      return predecessor;
     }
+  }
+  nodeToDeleteParent = (currentNode, key) => {
+    if (key === this.root.key) {
+      // node is root no parent;
+      return null;
+    }
+    let parent = null;
+    while (currentNode) {
+      // update parent if it's found
+      if (currentNode.right && currentNode.right.key === key) {
+        parent = currentNode;
+        break;
+      }
+      if (currentNode.left && currentNode.left.key === key) {
+        parent = currentNode;
+        break;
+      }
+      // traverse tree
+      if (currentNode.key < key) {
+        currentNode = currentNode.right;
+      } else {
+        currentNode = currentNode.left;
+      }
+    }
+
+    return parent;
+  };
+
+  removeLeafNode(parent, key) {
+    let tempNode = null;
+    if (!parent) {
+      // node is root
+      tempNode = JSON.parse(JSON.stringify(this.root)); // deep copy of object
+      this.root = null;
+    } else {
+      // node to delete is leftNode
+      if (parent.left && parent.left.key === key) {
+        tempNode = JSON.parse(JSON.stringify(parent.left));
+        parent.left = null;
+      } else {
+        // node to delete is the right node
+        tempNode = JSON.parse(JSON.stringify(parent.right));
+        parent.right = null;
+      }
+    }
+    this.length--;
+    return tempNode;
+  }
+  // remove a single child node;
+  removeNodeWithOneChild = (parent, nodeToDelete) => {
+    let tempNode = null;
+    if (!parent) {
+      tempNode = JSON.parse(JSON.stringify(this.root));
+      if (this.root.left) {
+        this.root = this.root.left;
+      } else {
+        this.root = this.root.right;
+      }
+    } else {
+      if (parent.left && parent.left.key === nodeToDelete.key) {
+        // node to delete is a left child and has one child;
+        parent.left = nodeToDelete.left || nodeToDelete.right;
+      } else {
+        // node to delete is a right child and has one child;
+        parent.right = nodeToDelete.left || nodeToDelete.right;
+      }
+      tempNode = JSON.parse(JSON.stringify(nodeToDelete));
+    }
+    this.length--;
+    return tempNode;
+  };
+
+  removeNodeWithTwoChildren(parent, nodeToDelete) {
+    // find successor
+    let successor = this.getSuccessor(nodeToDelete.key, this.root);
+
+    // find successor parent
+    let successorParent = this.nodeToDeleteParent(this.root, successor.key);
+
+    // if successor is not one level down
+    if (successorParent.key !== nodeToDelete.key) {
+      successorParent.left = successor.right || null;
+      successor.right = nodeToDelete.right;
+    }
+    if (!parent) {
+      this.root = successor;
+    }
+    if (parent && parent.left.key == nodeToDelete.key) {
+      parent.left = successor;
+    } else if (parent && parent.right.key == nodeToDelete.key) {
+      parent.right = successor;
+    }
+    successor.left = nodeToDelete.left;
+    nodeToDelete = successor;
+    return successor;
   }
 
   // delete
   delete(key) {
-    // return false if root is empty
-    if (!this.length) return false;
-
-    // remove leaf node
-    const removeLeaf = (parent) => {
-      //  root;
-      if (!parent) {
-        this.root = null;
-      } else {
-        // if left of parent is key to remove,  assign left Node to null
-        if (parent.left.key === key) {
-          parent.left = null;
-        } else {
-          // the node is the right child of parent;
-          parent.right = null;
-        }
-      }
-    };
-
-    // remove a single child node;
-    const removeNodeWithOneChild = (parent, node) => {
-      if (parent.left.key === key) {
-        parent.left = node.left || node.right; // assign the parent node to the left or right node of the child.
-      } else if (parent.right.key === key) {
-        parent.right = node.left || node.right;
-      }
-
-      // element to remove is the root
-      if (parent === null) {
-        this.root = node.left || node.right;
-      }
-    };
-
-    const setSuccessorParentLeftNode = (node, successor) => {
-      node.left = successor.right ? successor.right : null;
-    };
-    // remove a node with two children
-    const removeNodeWithTwoChildren = (parent, currentNode) => {
-      // find the successor for the subtree and keep track of his parent node
-      const subTreeCurrentNode = currentNode.right;
-      let successor = subTreeCurrentNode.left;
-      while (successor?.left) {
-        subTreeCurrentNode = successor;
-        successor = successor.left;
-      }
-
-      // case node is the root
-
-      if (!parent && successor) {
-        // node is root and successor is not the root of the subTree
-        // assign left child of his parent
-        setSuccessorParentLeftNode(subTreeCurrentNode, successor);
-        successor.left = currentNode.left;
-        successor.right = currentNode.right;
-        this.root = successor;
-      } else if (!parent && !successor) {
-        // successor is subTree root
-        successor = subTreeCurrentNode;
-        successor.left = currentNode.left;
-        this.root = successor;
-      }
-
-      // node is not the root;
-      if (parent && successor) {
-        setSuccessorParentLeftNode(subTreeCurrentNode, successor);
-        successor.left = currentNode.left;
-        successor.right = currentNode.right;
-      } else if (parent && !successor) {
-        successor = subTreeCurrentNode;
-        successor.left = currentNode.left;
-      }
-
-      // assign parent edges
-      if (parent && parent.left.key == currentNode.key) {
-        parent.left = successor;
-      } else if (parent && parent.right == currentNode.key) {
-        parent.right = successor;
-      }
-    };
-
-    let parent = null;
-    let currentNode = this.root;
-
-    while (currentNode) {
-      if (!parent) {
-        parent = currentNode;
-      }
-      if (key === currentNode.key) {
-        break;
-      } else if (key < currentNode.key) {
-        currentNode = currentNode.left;
-      } else {
-        currentNode = currentNode.right;
-      }
+    // return null if there is no tree
+    if (!key || !this.root) return null;
+    const nodeParent = this.nodeToDeleteParent(this.root, key);
+    let nodeToDelete;
+    if (this.root.key === key) {
+      nodeToDelete = this.root;
+    }
+    if (nodeParent && nodeParent.left.key === key) {
+      nodeToDelete = nodeParent.left;
+    } else if (nodeParent && nodeParent.right.key === key) {
+      nodeToDelete = nodeParent.right;
     }
 
-    if (!currentNode) return false;
+    // return null if there is no node to delete
+    if (!nodeToDelete) return null;
 
-    // node is found;
-    if (!currentNode.left && !currentNode.right) {
-      // node with no child;
-      removeLeaf(parent);
-    } else if (
-      (currentNode.left && !currentNode.right) ||
-      (currentNode.right && !currentNode.left)
-    ) {
-      // node with one child
-      removeNodeWithOneChild(parent, currentNode);
+    if (!nodeToDelete.left && !nodeToDelete.right) {
+      return this.removeLeafNode(nodeParent, key);
+    } else if (nodeToDelete.left && nodeToDelete.right) {
+      // delete node with two children
+      return this.removeNodeWithTwoChildren(nodeParent, nodeToDelete);
     } else {
-      // node has two children;
-      removeNodeWithTwoChildren(parent, currentNode);
+      // remove node with one child
+      return this.removeNodeWithOneChild(nodeParent, nodeToDelete);
     }
-    this.length--;
-    return true;
   }
 }
 
