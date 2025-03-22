@@ -30,7 +30,7 @@ export const module = {
 export const plugins = [
   // Extracts CSS into separate files
   new MiniCssExtractPlugin({
-    filename: `styles/[name]${stringDate}.css`,
+    filename: `styles/[name]${stringDate}.css`, // update the styles based on the date
     chunkFilename: "[name].css",
   }),
 ];
