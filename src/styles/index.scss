@@ -1,0 +1,137 @@
+$primary-color: #623cea;
+$text-color: #333333;
+$header-color: #704eec;
+$background-color: #f5f5f5;
+$accent-color: #fa8334;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  color: $text-color;
+  background-color: $background-color;
+  min-height: 100vh;
+  font-family: "Open Sans", sans-serif;
+  font-size: 16px;
+  line-height: 1.5rem;
+}
+
+main {
+  h1 {
+    color: $text-color;
+    font-family: "Lato", sans-serif;
+    text-align: center;
+    padding: 2rem 0 1rem 0;
+    @media only screen and (max-width: 859px) {
+      font-size: 1.7rem;
+    }
+  }
+}
+
+.bst {
+  width: 70%;
+  margin: 1rem auto;
+
+  &__commands {
+    width: 70vw;
+    p {
+      margin-bottom: 1rem;
+    }
+  }
+
+  &__form {
+    width: 70vw;
+    font-size: 0.8rem;
+
+    legend {
+      display: block;
+      margin-bottom: -0.2rem;
+    }
+    input[type="button"] {
+      background-color: $primary-color;
+      color: white;
+
+      border-radius: 0.2rem;
+      min-width: 100px;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: rgba($primary-color, 0.8);
+      }
+    }
+
+    input[type="text"] {
+      width: 40px;
+
+      border-radius: 0.2rem;
+      border: 1px solid #ccc;
+    }
+
+    input {
+      font-size: 0.6rem;
+      padding: 0.2rem;
+      margin-right: 0.2rem;
+    }
+
+    .form__flex {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .form__flex > div {
+      display: flex;
+    }
+  }
+
+  &__results-message {
+    color: $accent-color;
+    font-weight: bold;
+  }
+  &__results-array {
+    text-align: center;
+    span {
+      font-size: 1rem;
+      font-weight: bold;
+      color: $accent-color;
+    }
+  }
+
+  &__results-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+}
+.bst__container {
+  width: 70vw;
+  height: 50vh;
+  min-height: 50vh;
+  border: 1px solid #ccc;
+  resize: both;
+  overflow-x: auto;
+  overflow-y: auto;
+  margin: 0 0 2rem 0;
+  scroll-behavior: smooth;
+
+  svg {
+    margin: 10px auto;
+    overflow: auto;
+  }
+
+  path {
+    stroke: black;
+    stroke-width: 3;
+  }
+
+  text {
+    font-size: 16px;
+  }
+}
