@@ -249,6 +249,7 @@ class BinarySearchTree {
     }
     successor.left = nodeToDelete.left;
     nodeToDelete = successor;
+    this.length--;
     return successor;
   }
 
@@ -261,9 +262,9 @@ class BinarySearchTree {
     if (this.root.key === key) {
       nodeToDelete = this.root;
     }
-    if (nodeParent && nodeParent.left.key === key) {
+    if (nodeParent && nodeParent.left && nodeParent.left.key === key) {
       nodeToDelete = nodeParent.left;
-    } else if (nodeParent && nodeParent.right.key === key) {
+    } else if (nodeParent && nodeParent.right && nodeParent.right.key === key) {
       nodeToDelete = nodeParent.right;
     }
 
