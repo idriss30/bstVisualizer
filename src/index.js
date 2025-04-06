@@ -38,8 +38,9 @@ formObject.findButton.addEventListener("click", () => {
   // clear any previous array from traversal
   formObject.resetTraversalForm();
   if (!findFieldValue || typeof findFieldValue !== "number") return null;
-  if (!treeRender.bst.root) {
+  if (treeRender.bst.root === null) {
     treeRender.displayMessage("nothing to look up");
+    return;
   }
   const path = treeRender.findNodeAndReturnPath(findFieldValue);
   if (!path) {
@@ -178,8 +179,10 @@ formObject.deleteButton.addEventListener("click", () => {
   deleteKey = parseInt(deleteKey);
   // clean form
   formObject.deleteField.value = "";
+  formObject.resetTraversalForm();
   if (!deleteKey || typeof deleteKey != "number") {
     treeRender.displayMessage("Enter a valid key");
     return;
   }
+  treeRender.removeNode(deleteKey);
 });
