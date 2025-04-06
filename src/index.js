@@ -88,10 +88,11 @@ const createMarkerAndArrow = (container) => {
 formObject.preOrderButton.addEventListener("click", () => {
   // clean the input first
   formObject.resultArray.innerHTML = "";
-  formObject.resultTitle.innerText = "Pre-order result";
+
   const traversalItems = treeRender.preOrderTraversal();
   if (!traversalItems || traversalItems.length === 0) return;
   let currentNode;
+  formObject.resultTitle.innerText = "Pre-order result";
   traversalItems.forEach((node, index) => {
     // select currentNode
     currentNode = d3.select(`#node-${node.key}`);
@@ -104,9 +105,11 @@ formObject.preOrderButton.addEventListener("click", () => {
 formObject.postOrderButton.addEventListener("click", () => {
   // clean the input first
   formObject.resultArray.innerHTML = "";
-  formObject.resultTitle.innerText = "Post-order result";
+
   const traversalItems = treeRender.postOrderTraversal();
   if (!traversalItems || traversalItems.length === 0) return;
+  // add result
+  formObject.resultTitle.innerText = "Post-order result";
   let currentNode;
   traversalItems.forEach((node, index) => {
     // select currentNode
@@ -120,11 +123,12 @@ formObject.postOrderButton.addEventListener("click", () => {
 formObject.inOrderButton.addEventListener("click", () => {
   // clean the input first
   formObject.resultArray.innerHTML = "";
-  formObject.resultTitle.innerText = "In-order result";
 
   const traversalItems = treeRender.inOrderTraversal();
   if (!traversalItems || traversalItems.length === 0) return;
+  formObject.resultTitle.innerText = "In-order result";
   let currentNode;
+
   traversalItems.forEach((node, index) => {
     // select currentNode
     currentNode = d3.select(`#node-${node.key}`);
