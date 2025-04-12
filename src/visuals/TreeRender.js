@@ -130,9 +130,7 @@ class TreeRender {
         enter
           .append("path")
           .attr("class", d3TreeDom.linkClassName)
-          .attr("id", (d) => {
-            `link-${d.source.data.id}-to-${d.target.data.id}`;
-          })
+          .attr("id", (d) => `link-${d.source.data.id}-to-${d.target.data.id}`)
           .attr(
             "d",
             d3
