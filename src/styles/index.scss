@@ -34,18 +34,18 @@ main {
 }
 
 .bst {
-  width: 70%;
+  width: 50%;
   margin: 1rem auto;
 
   &__commands {
-    width: 70vw;
+    width: 50vw;
     p {
       margin-bottom: 1rem;
     }
   }
 
   &__form {
-    width: 70vw;
+    width: 50vw;
     font-size: 0.8rem;
 
     legend {
@@ -111,7 +111,7 @@ main {
   }
 }
 .bst__container {
-  width: 70vw;
+  width: 50vw;
   height: 50vh;
   min-height: 50vh;
   border: 1px solid #ccc;
