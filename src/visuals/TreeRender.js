@@ -227,32 +227,38 @@ class TreeRender {
   blinkingNodeAnimation(currentNode) {
     currentNode
       .transition()
+      .ease(d3.easeLinear)
       .duration(500)
       .select("circle")
       .attr("fill", d3TreeDom.animationFill)
       .attr("stroke", d3TreeDom.animationFill)
       .attr("r", 30)
       .transition()
+      .ease(d3.easeLinear)
       .duration(500)
       .attr("r", d3TreeDom.circleRadius)
       .attr("fill", d3TreeDom.fillColorOne)
       .attr("stroke", d3TreeDom.fillColorOne)
       .transition()
+      .ease(d3.easeLinear)
       .duration(500)
       .attr("fill", d3TreeDom.animationFill)
       .attr("stroke", d3TreeDom.animationFill)
       .attr("r", 35)
       .transition()
+      .ease(d3.easeLinear)
       .duration(500)
       .attr("r", d3TreeDom.circleRadius)
       .attr("fill", d3TreeDom.fillColorOne)
       .attr("stroke", d3TreeDom.fillColorOne)
       .transition()
+      .ease(d3.easeLinear)
       .duration(500)
       .attr("fill", d3TreeDom.animationFill)
       .attr("stroke", d3TreeDom.animationFill)
       .attr("r", 30)
       .transition()
+      .ease(d3.easeLinear)
       .duration(500)
       .attr("r", d3TreeDom.circleRadius)
       .attr("fill", d3TreeDom.fillColorOne)
@@ -263,6 +269,7 @@ class TreeRender {
   nodeAnimation(currentNode, index, callBack) {
     currentNode
       .transition()
+      .ease(d3.easeLinear)
       .delay(index * 500) // Delay based of index to avoid a simultaneous animation
       .select("circle")
       .duration(500)
@@ -312,6 +319,34 @@ class TreeRender {
       });
     });
   }
+  // shrinking a node
+  shrink(id) {
+    let domNodeElement = d3.select(`#node-${id}`);
+    let domNodeRadius = domNodeElement.select("circle").attr("r");
+    // change node color to accent color
+    // reduce size from current size to 0 within half a second
+
+    domNodeElement
+      .transition()
+      .ease(d3.easeLinear)
+      .duration(500)
+      .select("circle")
+      .attr("fill", d3TreeDom.animationFill)
+      .attr("stroke", d3TreeDom.animationFill)
+      .attr("r", domNodeRadius)
+      .transition()
+      .ease(d3.easeLinear)
+      .duration(500)
+      .attr("r", 0);
+
+    domNodeElement
+      .transition()
+      .ease(d3.easeLinear)
+      .duration(500)
+      .select("text")
+      .attr("fill", "black")
+      .text("");
+  }
   // rendering a node method
   renderNode(key) {
     const isKeyValid = this.bst.insert(key);
@@ -344,6 +379,7 @@ class TreeRender {
       return;
     }
     const selectMin = d3.select(`#node-${min.key}`);
+
     this.blinkingNodeAnimation(selectMin);
     this.displayMessage(`Minimum ${min.key} is blinking`);
   }
@@ -432,34 +468,40 @@ class TreeRender {
     span.appendChild(myString);
     formObject.resultArray.appendChild(span);
   }
+  animateRemoval(key, node) {
+    // find node 
+    const d3Node = this.treeData.data.find()
+    //single node or node with one children
+    if (node.key === key) {
+    }
+     
+  }
   removeNode(key) {
     if (this.bst.length === 0) {
       this.displayMessage("empty tree");
       return;
     }
-
-    if (this.bst.length > 1) {
-      // node not found
-      const deleteResult = this.bst.delete(key);
-      if (!deleteResult) {
-        this.displayMessage("node not found!");
-        return;
-      }
-      this.treeData.setData(this.bst.root);
-      const root = this.createTree(this.treeData.data);
-      this.manageNode(root);
-      this.manageLink(root);
+    const currentLength = this.bst.length; // keeping track of how many nodes in the tree
+    // node not found
+    const deleteResult = this.bst.delete(key);
+    if (!deleteResult) {
+      this.displayMessage("node not found!");
+      return;
+    }
+    this.animateRemoval(key, deleteResult);
+    // check if node has no children
+    
+    /* if (currentLength > 1) {
+      this.shrink(deleteResult.key);
+      //this.treeData.setData(this.bst.root);
+      //const root = this.createTree(this.treeData.data);
+      //this.manageNode(root);
+      //this.manageLink(root);
     } else {
-      // node not found
-      const deleteResult = this.bst.delete(key);
-      if (!deleteResult) {
-        this.displayMessage("node not found!");
-        return;
-      }
       // remove global group from dom-
       d3.select("svg").remove();
       this.appendStructure();
-    }
+    } */
   }
 }
 
