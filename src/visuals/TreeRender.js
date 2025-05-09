@@ -138,6 +138,7 @@ class TreeRender {
               .x((d) => d.x)
               .y((d) => d.y)
           ),
+
       (update) =>
         update.attr(
           "d",
@@ -178,14 +179,14 @@ class TreeRender {
 
       // offset single child node to place accordingly
 
-      if (d.children && d.children.length == 1) {
+      /*  if (d.children && d.children.length == 1) {
         const child = d.children[0];
         const offset = 40; //to adjust position of single child node
         if (child.x === d.x) {
           child.x =
             child.x + (child.data.name < d.data.name ? -offset : offset);
         }
-      }
+      } */
     });
     // adjust width and height
     this.treeData.width = Math.max(
@@ -200,6 +201,13 @@ class TreeRender {
       this.treeData.width,
       this.treeData.height * 1.4,
     ]);
+  }
+  // regenerate the tree layout
+  regenerateLayout() {
+    this.treeData.setData(this.bst.root);
+    const root = this.createTree(this.treeData.data);
+    this.updateTreeLayout(root);
+    return root;
   }
   // path to get to specific node
   pathToNode(root, key, arr = []) {
@@ -320,12 +328,12 @@ class TreeRender {
     });
   }
   // shrinking a node
-  shrink(id) {
+  shrink(id, callBack) {
     let domNodeElement = d3.select(`#node-${id}`);
     let domNodeRadius = domNodeElement.select("circle").attr("r");
+
     // change node color to accent color
     // reduce size from current size to 0 within half a second
-
     domNodeElement
       .transition()
       .ease(d3.easeLinear)
@@ -345,16 +353,17 @@ class TreeRender {
       .duration(500)
       .select("text")
       .attr("fill", "black")
-      .text("");
+      .text("")
+      .transition()
+      .duration(500)
+      .on("end", callBack);
   }
+
   // rendering a node method
   renderNode(key) {
     const isKeyValid = this.bst.insert(key);
     if (!isKeyValid) return null;
-    this.treeData.setData(this.bst.root);
-    // regenerate layout
-    const root = this.createTree(this.treeData.data);
-    this.updateTreeLayout(root);
+    const root = this.regenerateLayout();
     if (this.bst.length > 1) {
       // animate path
       this.animateInsertion(root, key);
@@ -468,14 +477,28 @@ class TreeRender {
     span.appendChild(myString);
     formObject.resultArray.appendChild(span);
   }
-  animateRemoval(key, node) {
-    // find node 
-    const d3Node = this.treeData.data.find()
-    //single node or node with one children
-    if (node.key === key) {
-    }
-     
+  singleNodeRemovalCallBack() {
+    const root = this.regenerateLayout();
+    this.manageLink(root);
+    this.manageNode(root);
   }
+  animateRemoval(key, node) {
+    // function will animate based of leaf node, single child node, and when successor is returned  (2 children)
+    // find converted d3 node
+    const d3Node = this.treeData.root.find(
+      (insideNode) => insideNode.data.name === node.key
+    );
+
+    if (node.key === key) {
+      // leaf
+      if (d3Node && d3Node.data.children.length === 0) {
+        // shrink
+        this.shrink(d3Node.data.id, this.singleNodeRemovalCallBack.bind(this)); // ensure method is bound to instance correctly
+      }
+    } else {
+    }
+  }
+
   removeNode(key) {
     if (this.bst.length === 0) {
       this.displayMessage("empty tree");
@@ -488,20 +511,14 @@ class TreeRender {
       this.displayMessage("node not found!");
       return;
     }
-    this.animateRemoval(key, deleteResult);
-    // check if node has no children
-    
-    /* if (currentLength > 1) {
-      this.shrink(deleteResult.key);
-      //this.treeData.setData(this.bst.root);
-      //const root = this.createTree(this.treeData.data);
-      //this.manageNode(root);
-      //this.manageLink(root);
+
+    if (currentLength > 1) {
+      this.animateRemoval(key, deleteResult);
     } else {
       // remove global group from dom-
       d3.select("svg").remove();
       this.appendStructure();
-    } */
+    }
   }
 }
 
