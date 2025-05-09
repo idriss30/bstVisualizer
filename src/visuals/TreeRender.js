@@ -178,15 +178,14 @@ class TreeRender {
       d.y = d.depth * 150; // adjust vertical spacing
 
       // offset single child node to place accordingly
-
-      /*  if (d.children && d.children.length == 1) {
-        const child = d.children[0];
-        const offset = 40; //to adjust position of single child node
-        if (child.x === d.x) {
-          child.x =
-            child.x + (child.data.name < d.data.name ? -offset : offset);
+      if (d.children && d.children.length === 1) {
+        const isBigger = d.children[0].data.name > d.data.name ? true : false;
+        if (isBigger) {
+          d.children[0].x += (d.children[0].y - d.y) / 2;
+        } else {
+          d.children[0].x -= (d.children[0].y - d.y) / 2; // no specific formula just trying different offset
         }
-      } */
+      }
     });
     // adjust width and height
     this.treeData.width = Math.max(
@@ -232,59 +231,59 @@ class TreeRender {
     return false;
   }
 
-  blinkingNodeAnimation(currentNode) {
+  blinkingNodeAnimation(currentNode, speed) {
     currentNode
       .transition()
       .ease(d3.easeLinear)
-      .duration(500)
+      .duration(speed)
       .select("circle")
       .attr("fill", d3TreeDom.animationFill)
       .attr("stroke", d3TreeDom.animationFill)
       .attr("r", 30)
       .transition()
       .ease(d3.easeLinear)
-      .duration(500)
+      .duration(speed)
       .attr("r", d3TreeDom.circleRadius)
       .attr("fill", d3TreeDom.fillColorOne)
       .attr("stroke", d3TreeDom.fillColorOne)
       .transition()
       .ease(d3.easeLinear)
-      .duration(500)
+      .duration(speed)
       .attr("fill", d3TreeDom.animationFill)
       .attr("stroke", d3TreeDom.animationFill)
       .attr("r", 35)
       .transition()
       .ease(d3.easeLinear)
-      .duration(500)
+      .duration(speed)
       .attr("r", d3TreeDom.circleRadius)
       .attr("fill", d3TreeDom.fillColorOne)
       .attr("stroke", d3TreeDom.fillColorOne)
       .transition()
       .ease(d3.easeLinear)
-      .duration(500)
+      .duration(speed)
       .attr("fill", d3TreeDom.animationFill)
       .attr("stroke", d3TreeDom.animationFill)
       .attr("r", 30)
       .transition()
       .ease(d3.easeLinear)
-      .duration(500)
+      .duration(speed)
       .attr("r", d3TreeDom.circleRadius)
       .attr("fill", d3TreeDom.fillColorOne)
       .attr("stroke", d3TreeDom.fillColorOne);
   }
 
   // function to animate a node
-  nodeAnimation(currentNode, index, callBack) {
+  nodeAnimation(currentNode, speed, index, callBack) {
     currentNode
       .transition()
       .ease(d3.easeLinear)
-      .delay(index * 500) // Delay based of index to avoid a simultaneous animation
+      .delay(index * speed) // Delay based of index to avoid a simultaneous animation
       .select("circle")
-      .duration(500)
+      .duration(speed)
       .attr("fill", d3TreeDom.animationFill)
       .attr("stroke", d3TreeDom.animationFill)
       .transition()
-      .duration(250)
+      .duration(speed)
       .attr("fill", d3TreeDom.fillColorOne) // restore color
       .attr("stroke", d3TreeDom.fillColorOne)
       .on("end", callBack);
@@ -303,7 +302,7 @@ class TreeRender {
     };
     nodesPath.forEach((node, index) => {
       currentNode = d3.select(`#node-${node.data.id}`);
-      this.nodeAnimation(currentNode, index, () => {
+      this.nodeAnimation(currentNode, 500, index, () => {
         callBack(index, nodesPath);
       });
     });
@@ -314,7 +313,7 @@ class TreeRender {
     const callBack = (currentNode, index, path) => {
       if (index === path.length - 1) {
         // creating blinking animation to last found node
-        this.blinkingNodeAnimation(currentNode);
+        this.blinkingNodeAnimation(currentNode, 500);
         this.displayMessage(`${currentNode.attr("id")} is currently blinking`);
       }
     };
@@ -322,13 +321,13 @@ class TreeRender {
     nodesArray.forEach((node, index) => {
       // select current node
       currentNode = d3.select(`#node-${node.data.id}`);
-      this.nodeAnimation(currentNode, index, () => {
+      this.nodeAnimation(currentNode, 500, index, () => {
         callBack(currentNode, index, nodesArray);
       });
     });
   }
   // shrinking a node
-  shrink(id, callBack) {
+  shrink(id, callBack, speed) {
     let domNodeElement = d3.select(`#node-${id}`);
     let domNodeRadius = domNodeElement.select("circle").attr("r");
 
@@ -337,25 +336,25 @@ class TreeRender {
     domNodeElement
       .transition()
       .ease(d3.easeLinear)
-      .duration(500)
+      .duration(speed)
       .select("circle")
       .attr("fill", d3TreeDom.animationFill)
       .attr("stroke", d3TreeDom.animationFill)
       .attr("r", domNodeRadius)
       .transition()
       .ease(d3.easeLinear)
-      .duration(500)
+      .duration(speed)
       .attr("r", 0);
 
     domNodeElement
       .transition()
       .ease(d3.easeLinear)
-      .duration(500)
+      .duration(speed)
       .select("text")
       .attr("fill", "black")
       .text("")
       .transition()
-      .duration(500)
+      .duration(speed)
       .on("end", callBack);
   }
 
@@ -389,7 +388,7 @@ class TreeRender {
     }
     const selectMin = d3.select(`#node-${min.key}`);
 
-    this.blinkingNodeAnimation(selectMin);
+    this.blinkingNodeAnimation(selectMin, 500);
     this.displayMessage(`Minimum ${min.key} is blinking`);
   }
   //  get predecessor
@@ -401,7 +400,7 @@ class TreeRender {
       return;
     }
     const selectPredecessor = d3.select(`#node-${predecessor.key}`);
-    this.blinkingNodeAnimation(selectPredecessor);
+    this.blinkingNodeAnimation(selectPredecessor, 500);
     this.displayMessage(
       `${selectPredecessor.attr("id")} is currently blinking)`
     );
@@ -417,7 +416,7 @@ class TreeRender {
     }
 
     const selectSuccessor = d3.select(`#node-${successor.key}`);
-    this.blinkingNodeAnimation(selectSuccessor);
+    this.blinkingNodeAnimation(selectSuccessor, 500);
     this.displayMessage(`${selectSuccessor.attr("id")} is currently blinking)`);
   }
 
@@ -429,7 +428,7 @@ class TreeRender {
       return;
     }
     const maxSelection = d3.select(`#node-${max.key}`);
-    this.blinkingNodeAnimation(maxSelection);
+    this.blinkingNodeAnimation(maxSelection, 500);
     this.displayMessage(`Maximum ${max.key} is blinking`);
   }
   // inOrder Traversal
@@ -493,7 +492,11 @@ class TreeRender {
       // leaf
       if (d3Node && d3Node.data.children.length === 0) {
         // shrink
-        this.shrink(d3Node.data.id, this.singleNodeRemovalCallBack.bind(this)); // ensure method is bound to instance correctly
+        this.shrink(
+          d3Node.data.id,
+          this.singleNodeRemovalCallBack.bind(this),
+          500
+        ); // ensure method is bound to instance correctly
       }
     } else {
     }
