@@ -358,6 +358,20 @@ class TreeRender {
       .on("end", callBack);
   }
 
+  // From node x to node y animation
+  moveFromXToY(fromNode, toNode, speed) {
+    // function helps animate a node from one position to another
+    let fromNodeDom = d3.select(`#node-${fromNode.data.id}`);
+    let toNodeDom = d3.select(`#node-${toNode.data.name}`);
+
+    fromNodeDom
+      .transition()
+      .ease(d3.easeLinear)
+      .duration(speed)
+      .select("circle")
+      .attr("color")
+  }
+
   // rendering a node method
   renderNode(key) {
     const isKeyValid = this.bst.insert(key);
@@ -476,11 +490,12 @@ class TreeRender {
     span.appendChild(myString);
     formObject.resultArray.appendChild(span);
   }
-  singleNodeRemovalCallBack() {
+  leafAndSingleNodeRemovalCallBack() {
     const root = this.regenerateLayout();
     this.manageLink(root);
     this.manageNode(root);
   }
+
   animateRemoval(key, node) {
     // function will animate based of leaf node, single child node, and when successor is returned  (2 children)
     // find converted d3 node
@@ -489,16 +504,18 @@ class TreeRender {
     );
 
     if (node.key === key) {
-      // leaf
-      if (d3Node && d3Node.data.children.length === 0) {
-        // shrink
-        this.shrink(
-          d3Node.data.id,
-          this.singleNodeRemovalCallBack.bind(this),
-          500
-        ); // ensure method is bound to instance correctly
-      }
+      // leaf and single child animation
+      // shrink
+      this.shrink(
+        d3Node.data.id,
+        this.leafAndSingleNodeRemovalCallBack.bind(this), // ensure method is bound to instance correctly
+        500
+      );
     } else {
+      // find actual node to delete because successor got returned
+      const d3NodeToDelete = this.treeData.root.find(
+        (node) => node.data.name === key
+      );
     }
   }
 
