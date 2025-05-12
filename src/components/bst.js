@@ -239,12 +239,13 @@ class BinarySearchTree {
       successorParent.left = successor.right || null;
       successor.right = nodeToDelete.right;
     }
+    // assign root if parent is null or undefined
     if (!parent) {
       this.root = successor;
     }
-    if (parent && parent.left.key == nodeToDelete.key) {
+    if (parent && parent.left && parent.left.key == nodeToDelete.key) {
       parent.left = successor;
-    } else if (parent && parent.right.key == nodeToDelete.key) {
+    } else if (parent && parent.right && parent.right.key == nodeToDelete.key) {
       parent.right = successor;
     }
     successor.left = nodeToDelete.left;
@@ -284,3 +285,12 @@ class BinarySearchTree {
 }
 
 export { BinarySearchTree };
+
+/*
+  remove node with no children by reducing or shrinking size until none.
+  for node with one children 
+  for node with one children move children up
+
+
+
+*/
