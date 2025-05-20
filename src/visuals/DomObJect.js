@@ -23,11 +23,24 @@ const formObject = {
   successorButton: document.querySelector(".bst__button-successor"),
   resultArray: document.querySelector(".bst__results-array"),
   resultTitle: document.querySelector(".bst__results-title"),
+  buttons: document.querySelectorAll(`input[type="button"]`),
   resetTraversalForm() {
     if (this.resultTitle && this.resultTitle.innerText != "") {
       this.resultArray.innerHTML = "";
       this.resultTitle.innerText = "";
     }
+  },
+  disableAllButtons() {
+    this.buttons.forEach((button) => {
+      button.style.backgroundColor = "gray";
+      button.disabled = true;
+    });
+  },
+  activateAllButtons() {
+    this.buttons.forEach((button) => {
+      button.style.backgroundColor = "#157a6e";
+      button.disabled = false;
+    });
   },
 };
 
