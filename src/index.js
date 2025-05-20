@@ -4,6 +4,7 @@ import { formObject } from "./visuals/DomObJect";
 import { TreeRender } from "./visuals/TreeRender";
 
 let treeRender;
+
 window.onload = () => {
   treeRender = new TreeRender();
 };
@@ -20,13 +21,15 @@ formObject.insertButton.addEventListener("click", () => {
     return null;
   }
   // avoid number greater or equal to 1000
-  if (insertFieldValue >= 1000) {
-    treeRender.displayMessage("no number greater or equal to 1000");
+  if (insertFieldValue >= 1000 || insertFieldValue <= -1000) {
+    treeRender.displayMessage("out of range:  -999 to 999");
     return;
   }
+  formObject.disableAllButtons();
   const insertResult = treeRender.renderNode(insertFieldValue);
   if (insertResult === null) {
     treeRender.displayMessage(`Node ${insertFieldValue} already exists`);
+    formObject.activateAllButtons();
   }
 });
 
@@ -47,43 +50,10 @@ formObject.findButton.addEventListener("click", () => {
     treeRender.displayMessage(`node ${findFieldValue} is not in the tree`);
     return;
   }
+  formObject.disableAllButtons();
   // animate traversal when node is found
   treeRender.nodeFindingAnimation(path);
 });
-
-/* const drawLine = (container, x1, y1, x2, y2) => {
-  const line = container
-    .append("line")
-    .attr("id", "tempLine")
-    .attr("x1", x1)
-    .attr("x2", x2)
-    .attr("y1", y1)
-    .attr("y2", y2)
-    .attr("stroke-width", 5)
-    .attr("stroke", "#fa8334")
-    .attr("marker-end", "url(#arrow)");
-
-  return line;
-};
-
-const createMarkerAndArrow = (container) => {
-  const defs = container.append("defs").attr("id", "tempArrowContainer");
-  const marker = defs
-    .append("marker")
-    .attr("id", "arrow")
-    .attr("markerWidth", 10)
-    .attr("markerHeight", 10)
-    .attr("refX", 10)
-    .attr("refY", 5)
-    .attr("orient", "auto");
-
-  marker
-    .append("path")
-    .attr("d", "M0 0 L20 0  L0 10 z")
-    .attr("fill", "#fa8334 ");
-
-  return defs;
-}; */
 
 formObject.preOrderButton.addEventListener("click", () => {
   // clean the input first
@@ -91,12 +61,13 @@ formObject.preOrderButton.addEventListener("click", () => {
 
   const traversalItems = treeRender.preOrderTraversal();
   if (!traversalItems || traversalItems.length === 0) return;
+  formObject.disableAllButtons();
   let currentNode;
   formObject.resultTitle.innerText = "Pre-order result";
   traversalItems.forEach((node, index) => {
     // select currentNode
     currentNode = d3.select(`#node-${node.key}`);
-    treeRender.nodeAnimation(currentNode, index, () => {
+    treeRender.nodeAnimation(currentNode, 700, index, () => {
       treeRender.traversalCallBack(node, index, traversalItems.length);
     });
   });
@@ -108,13 +79,14 @@ formObject.postOrderButton.addEventListener("click", () => {
 
   const traversalItems = treeRender.postOrderTraversal();
   if (!traversalItems || traversalItems.length === 0) return;
+  formObject.disableAllButtons();
   // add result
   formObject.resultTitle.innerText = "Post-order result";
   let currentNode;
   traversalItems.forEach((node, index) => {
     // select currentNode
     currentNode = d3.select(`#node-${node.key}`);
-    treeRender.nodeAnimation(currentNode, index, () => {
+    treeRender.nodeAnimation(currentNode, 700, index, () => {
       treeRender.traversalCallBack(node, index, traversalItems.length);
     });
   });
@@ -126,13 +98,14 @@ formObject.inOrderButton.addEventListener("click", () => {
 
   const traversalItems = treeRender.inOrderTraversal();
   if (!traversalItems || traversalItems.length === 0) return;
+  formObject.disableAllButtons();
   formObject.resultTitle.innerText = "In-order result";
   let currentNode;
 
   traversalItems.forEach((node, index) => {
     // select currentNode
     currentNode = d3.select(`#node-${node.key}`);
-    treeRender.nodeAnimation(currentNode, index, () => {
+    treeRender.nodeAnimation(currentNode, 700, index, () => {
       treeRender.traversalCallBack(node, index, traversalItems.length);
     });
   });
@@ -141,12 +114,14 @@ formObject.inOrderButton.addEventListener("click", () => {
 formObject.getMinButton.addEventListener("click", () => {
   // clear any previous array from traversal
   formObject.resetTraversalForm();
+
   treeRender.getMinAndBlinkWhenFound();
 });
 
 formObject.getMaxButton.addEventListener("click", () => {
   // clear any previous array from traversal
   formObject.resetTraversalForm();
+
   treeRender.getMaxAndBlinkWhenFound();
 });
 
@@ -161,6 +136,7 @@ formObject.predecessorButton.addEventListener("click", () => {
     treeRender.displayMessage("Please enter a valid number");
     return null;
   }
+  formObject.disableAllButtons();
   treeRender.getPredecessor(userInputValue, treeRender.bst.root);
 });
 
@@ -174,6 +150,7 @@ formObject.successorButton.addEventListener("click", () => {
     treeRender.displayMessage("Please enter a valid number");
     return null;
   }
+  formObject.disableAllButtons();
   treeRender.getSuccessor(userInputValue, treeRender.bst.root);
 });
 
@@ -188,5 +165,31 @@ formObject.deleteButton.addEventListener("click", () => {
     treeRender.displayMessage("Enter a valid key");
     return;
   }
+  formObject.disableAllButtons();
   treeRender.removeNode(deleteKey);
 });
+
+/* // function to generate a random array of -
+function genenerate30RandomNum() {
+  let i = 0;
+  const randomNumbersArray = [];
+  while (i < 150) {
+    randomNumbersArray.push(Math.floor(Math.random() * (150 - 1 + 1) + 1));
+    i++;
+  }
+  return randomNumbersArray;
+}
+
+// function to insert an array in the tree ( bulk insert)
+function bulkInsert(numbers) {
+  numbers.forEach((number) => {
+    treeRender.bst.insert(number);
+  });
+
+  treeRender.treeData.setData(treeRender.bst.root);
+  const root = treeRender.createTree(treeRender.treeData.data);
+  treeRender.manageNode(root);
+  treeRender.manageLink(root);
+  treeRender.updateTreeLayout(root);
+}
+ */
