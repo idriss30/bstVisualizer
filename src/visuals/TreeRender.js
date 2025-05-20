@@ -88,7 +88,7 @@ class TreeRender {
   }
   // manage node function
   manageNode(root) {
-    // data can be changed and adjust based on dev preference
+    // data can be changed and adjusted based on dev preference
     this.treeData.nodeGroup
       .selectAll(`.${d3TreeDom.className}`)
       .data(root.descendants(), (d) => d.data.id) // Using id as unique identifier
@@ -181,9 +181,9 @@ class TreeRender {
       if (d.children && d.children.length === 1) {
         const isBigger = d.children[0].data.name > d.data.name ? true : false;
         if (isBigger) {
-          d.children[0].x += (d.children[0].y - d.y) / 2;
+          d.children[0].x += (d.children[0].y - d.y) / 4;
         } else {
-          d.children[0].x -= (d.children[0].y - d.y) / 2; // no specific formula just trying different offset
+          d.children[0].x -= (d.children[0].y - d.y) / 4; // no specific formula just trying different offset
         }
       }
     });
@@ -198,7 +198,7 @@ class TreeRender {
       -this.treeData.dx + this.treeData.x0,
       -this.treeData.dy + this.treeData.y0,
       this.treeData.width,
-      this.treeData.height * 1.4,
+      this.treeData.height * 1.2,
     ]);
   }
   // regenerate the tree layout
@@ -231,7 +231,7 @@ class TreeRender {
     return false;
   }
 
-  blinkingNodeAnimation(currentNode, speed) {
+  blinkingNodeAnimation(currentNode, speed, callBack = null) {
     currentNode
       .transition()
       .ease(d3.easeLinear)
@@ -251,7 +251,7 @@ class TreeRender {
       .duration(speed)
       .attr("fill", d3TreeDom.animationFill)
       .attr("stroke", d3TreeDom.animationFill)
-      .attr("r", 35)
+      .attr("r", 30)
       .transition()
       .ease(d3.easeLinear)
       .duration(speed)
@@ -269,7 +269,8 @@ class TreeRender {
       .duration(speed)
       .attr("r", d3TreeDom.circleRadius)
       .attr("fill", d3TreeDom.fillColorOne)
-      .attr("stroke", d3TreeDom.fillColorOne);
+      .attr("stroke", d3TreeDom.fillColorOne)
+      .on("end", callBack);
   }
 
   // function to animate a node
@@ -297,6 +298,7 @@ class TreeRender {
         // stopping at element before the last one to prevent animation of the last inserted node
         this.manageLink(root);
         this.manageNode(root);
+        formObject.activateAllButtons();
         return;
       }
     };
@@ -312,8 +314,10 @@ class TreeRender {
     // creating callBack to pass after animation
     const callBack = (currentNode, index, path) => {
       if (index === path.length - 1) {
-        // creating blinking animation to last found node
-        this.blinkingNodeAnimation(currentNode, 500);
+        // creating blinking animation to last found node and activate buttons
+        this.blinkingNodeAnimation(currentNode, 500, () =>
+          formObject.activateAllButtons()
+        );
         this.displayMessage(`${currentNode.attr("id")} is currently blinking`);
       }
     };
@@ -326,7 +330,8 @@ class TreeRender {
       });
     });
   }
-  // shrinking a node
+
+  // shrinking a node will be used for single child node and leaf node removal
   shrink(id, callBack, speed) {
     let domNodeElement = d3.select(`#node-${id}`);
     let domNodeRadius = domNodeElement.select("circle").attr("r");
@@ -358,18 +363,63 @@ class TreeRender {
       .on("end", callBack);
   }
 
-  // From node x to node y animation
-  moveFromXToY(fromNode, toNode, speed) {
-    // function helps animate a node from one position to another
+  // function to move from one node to another
+  moveFromXToY(fromNode, toNode, speed, callBack) {
     let fromNodeDom = d3.select(`#node-${fromNode.data.id}`);
-    let toNodeDom = d3.select(`#node-${toNode.data.name}`);
-
     fromNodeDom
       .transition()
       .ease(d3.easeLinear)
       .duration(speed)
       .select("circle")
-      .attr("color")
+      .attr("fill", d3TreeDom.animationFill)
+      .attr("stroke", d3TreeDom.animationFill)
+      .transition()
+      .delay(speed * 2)
+      .ease(d3.easeLinear)
+      .duration(speed)
+      .attr("fill", "black")
+      .attr("stroke", "black");
+
+    fromNodeDom
+      .transition()
+      .ease(d3.easeLinear)
+      .duration(500)
+      .attr("transform", `translate(${fromNode.x}, ${fromNode.y})`)
+      .transition()
+      .ease(d3.easeLinear)
+      .duration(500)
+      .attr("transform", `translate(${toNode.x}, ${toNode.y})`)
+      .transition()
+      .duration(speed)
+      .on("end", callBack);
+  }
+
+  // function to animate the removal of a node with two children
+  twoChildrenRemovalAnimation(fromNode, toNode, speed) {
+    if (fromNode.children && fromNode.children.length > 0) {
+      let successorChild = fromNode.children[0];
+      let fromNodeCopy = { ...fromNode };
+      this.moveFromXToY(
+        fromNode,
+        toNode,
+        speed,
+        this.moveFromXToY(successorChild, fromNodeCopy, speed, () => {
+          const root = this.regenerateLayout();
+          this.manageLink(root);
+          this.manageNode(root);
+          formObject.activateAllButtons();
+        })
+      );
+    } else {
+      const callBack = () => {
+        const root = this.regenerateLayout();
+        this.manageLink(root);
+        this.manageNode(root);
+        formObject.activateAllButtons();
+      };
+
+      this.moveFromXToY(fromNode, toNode, speed, callBack);
+    }
   }
 
   // rendering a node method
@@ -382,6 +432,7 @@ class TreeRender {
       this.animateInsertion(root, key);
     } else {
       this.manageNode(root);
+      formObject.activateAllButtons();
     }
   }
   // function that displays a message and delete it after two second
@@ -400,9 +451,12 @@ class TreeRender {
       this.displayMessage("No minimum was found");
       return;
     }
+    formObject.disableAllButtons();
     const selectMin = d3.select(`#node-${min.key}`);
 
-    this.blinkingNodeAnimation(selectMin, 500);
+    this.blinkingNodeAnimation(selectMin, 500, () =>
+      formObject.activateAllButtons()
+    );
     this.displayMessage(`Minimum ${min.key} is blinking`);
   }
   //  get predecessor
@@ -411,10 +465,13 @@ class TreeRender {
 
     if (!predecessor) {
       this.displayMessage("predecessor was not found");
+      formObject.activateAllButtons();
       return;
     }
     const selectPredecessor = d3.select(`#node-${predecessor.key}`);
-    this.blinkingNodeAnimation(selectPredecessor, 500);
+    this.blinkingNodeAnimation(selectPredecessor, 500, () =>
+      formObject.activateAllButtons()
+    );
     this.displayMessage(
       `${selectPredecessor.attr("id")} is currently blinking)`
     );
@@ -426,11 +483,14 @@ class TreeRender {
 
     if (!successor) {
       this.displayMessage("successor was not found");
+      formObject.activateAllButtons();
       return;
     }
 
     const selectSuccessor = d3.select(`#node-${successor.key}`);
-    this.blinkingNodeAnimation(selectSuccessor, 500);
+    this.blinkingNodeAnimation(selectSuccessor, 500, () =>
+      formObject.activateAllButtons()
+    );
     this.displayMessage(`${selectSuccessor.attr("id")} is currently blinking)`);
   }
 
@@ -441,8 +501,11 @@ class TreeRender {
       this.displayMessage("No maximum was found");
       return;
     }
+    formObject.disableAllButtons();
     const maxSelection = d3.select(`#node-${max.key}`);
-    this.blinkingNodeAnimation(maxSelection, 500);
+    this.blinkingNodeAnimation(maxSelection, 500, () =>
+      formObject.activateAllButtons()
+    );
     this.displayMessage(`Maximum ${max.key} is blinking`);
   }
   // inOrder Traversal
@@ -486,6 +549,8 @@ class TreeRender {
       myString = document.createTextNode(`${node.key}, `);
     } else {
       myString = document.createTextNode(`${node.key} ]`);
+      // activate buttons when last element shows up on screen
+      formObject.activateAllButtons();
     }
     span.appendChild(myString);
     formObject.resultArray.appendChild(span);
@@ -494,6 +559,7 @@ class TreeRender {
     const root = this.regenerateLayout();
     this.manageLink(root);
     this.manageNode(root);
+    formObject.activateAllButtons(); // activate buttons when done
   }
 
   animateRemoval(key, node) {
@@ -516,6 +582,7 @@ class TreeRender {
       const d3NodeToDelete = this.treeData.root.find(
         (node) => node.data.name === key
       );
+      this.twoChildrenRemovalAnimation(d3Node, d3NodeToDelete, 500);
     }
   }
 
@@ -529,6 +596,7 @@ class TreeRender {
     const deleteResult = this.bst.delete(key);
     if (!deleteResult) {
       this.displayMessage("node not found!");
+      formObject.activateAllButtons();
       return;
     }
 
@@ -538,6 +606,7 @@ class TreeRender {
       // remove global group from dom-
       d3.select("svg").remove();
       this.appendStructure();
+      formObject.activateAllButtons();
     }
   }
 }
