@@ -16,10 +16,12 @@ formObject.insertButton.addEventListener("click", () => {
   formObject.insertField.value = "";
   // clear any previous array from traversal
   formObject.resetTraversalForm();
-  if (!insertFieldValue || typeof insertFieldValue !== "number") {
+  // display message when not integer
+  if (!Number.isInteger(insertFieldValue)) {
     treeRender.displayMessage("Please enter a valid number");
     return null;
   }
+
   // avoid number greater or equal to 1000
   if (insertFieldValue >= 1000 || insertFieldValue <= -1000) {
     treeRender.displayMessage("out of range:  -999 to 999");
@@ -40,11 +42,12 @@ formObject.findButton.addEventListener("click", () => {
   formObject.findField.value = ""; // clean up form
   // clear any previous array from traversal
   formObject.resetTraversalForm();
-  if (!findFieldValue || typeof findFieldValue !== "number") return null;
+
   if (treeRender.bst.root === null) {
     treeRender.displayMessage("nothing to look up");
     return;
   }
+  if (!Number.isInteger(findFieldValue)) return null;
   const path = treeRender.findNodeAndReturnPath(findFieldValue);
   if (!path) {
     treeRender.displayMessage(`node ${findFieldValue} is not in the tree`);
@@ -132,7 +135,7 @@ formObject.predecessorButton.addEventListener("click", () => {
   formObject.predecessorField.value = "";
   // clear any previous array from traversal
   formObject.resetTraversalForm();
-  if (!userInputValue || typeof userInputValue != "number") {
+  if (!Number.isInteger(userInputValue)) {
     treeRender.displayMessage("Please enter a valid number");
     return null;
   }
@@ -146,7 +149,7 @@ formObject.successorButton.addEventListener("click", () => {
   formObject.successorField.value = "";
   // clear any previous array from traversal
   formObject.resetTraversalForm();
-  if (!userInputValue || typeof userInputValue != "number") {
+  if (!Number.isInteger(userInputValue)) {
     treeRender.displayMessage("Please enter a valid number");
     return null;
   }
@@ -161,7 +164,7 @@ formObject.deleteButton.addEventListener("click", () => {
   // clean form
   formObject.deleteField.value = "";
   formObject.resetTraversalForm();
-  if (!deleteKey || typeof deleteKey != "number") {
+  if (!Number.isInteger(deleteKey)) {
     treeRender.displayMessage("Enter a valid key");
     return;
   }
