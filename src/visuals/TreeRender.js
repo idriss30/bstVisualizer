@@ -102,6 +102,9 @@ class TreeRender {
 
           nodeEnter
             .append("circle")
+            .attr("r", 0)
+            .transition()
+            .duration(500)
             .attr("r", d3TreeDom.circleRadius)
             .attr("stroke-width", 3)
             .attr("stroke", d3TreeDom.fillColorOne)
@@ -114,6 +117,7 @@ class TreeRender {
             .style("font-size", "35px")
             .attr("fill", d3TreeDom.text)
             .text((d) => d.data.name);
+          return nodeEnter;
         },
         (update) => update.attr("transform", (d) => `translate(${d.x},${d.y})`), // update position
         (exit) => exit.remove()
@@ -589,6 +593,7 @@ class TreeRender {
   removeNode(key) {
     if (this.bst.length === 0) {
       this.displayMessage("empty tree");
+      formObject.activateAllButtons();
       return;
     }
     const currentLength = this.bst.length; // keeping track of how many nodes in the tree
