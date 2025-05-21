@@ -28,7 +28,7 @@ class BinarySearchTree {
 
   // insert
   insert(key) {
-    if (!key || typeof key !== "number") return false;
+    if (!Number.isInteger(key)) return false;
     // add root
     if (!this.length) {
       let node = new TreeNode(key);
@@ -257,7 +257,8 @@ class BinarySearchTree {
   // delete
   delete(key) {
     // return null if there is no tree
-    if (!key || !this.root) return null;
+    if (!Number.isInteger(key) || !this.root) return null;
+
     const nodeParent = this.nodeToDeleteParent(this.root, key);
     let nodeToDelete;
     if (this.root.key === key) {
