@@ -15,10 +15,7 @@ module.exports = {
 
   output: {
     path: path.resolve(__dirname, "..", "./build"),
-    filename: `[name]${new Date()
-      .toDateString()
-      .split(" ")
-      .join("")}.bundle.js`,
+    filename: `[name][contenthash:8].bundle.js`,
   },
   optimization: {
     splitChunks: { chunks: "all" },

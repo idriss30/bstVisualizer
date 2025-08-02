@@ -1,36 +1,33 @@
-import MiniCssExtractPlugin, {
-  loader as _loader,
-} from "mini-css-extract-plugin";
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
-const date = new Date();
-let stringDate = date.toDateString().split(" ").join("");
-
-export const mode = "production";
-export const devtool = "source-map";
-export const module = {
-  rules: [
-    {
-      test: /\.(scss|css)$/,
-      use: [
-        _loader,
-        {
-          loader: "css-loader",
-          options: {
-            importLoaders: 2,
-            sourceMap: false, // don't allow original source code in the browser
-            modules: false,
+module.exports = {
+  mode: "production",
+  devtool: "source-map",
+  module: {
+    rules: [
+      {
+        test: /\.(scss|css)$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: "css-loader",
+            options: {
+              importLoaders: 2,
+              sourceMap: false,
+              modules: false,
+            },
           },
-        },
 
-        "sass-loader",
-      ],
-    },
+          "sass-loader",
+        ],
+      },
+    ],
+  },
+  plugins: [
+    // Extracts CSS into separate files
+    new MiniCssExtractPlugin({
+      filename: `styles/[name][contenthash:8].css`,
+      chunkFilename: "[name][contenthash:8].css",
+    }),
   ],
 };
-export const plugins = [
-  // Extracts CSS into separate files
-  new MiniCssExtractPlugin({
-    filename: `styles/[name]${stringDate}.css`, // update the styles based on the date
-    chunkFilename: "[name].css",
-  }),
-];
